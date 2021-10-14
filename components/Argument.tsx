@@ -17,7 +17,7 @@ export default function Argument() {
 
     return (
         <>
-            <Text>Determine if an argument is valid</Text>
+            <Text pb="1rem">Determine if an argument constructed of premises and a conclusion is valid (which means that if all of the premises are true, the conclusion is true).</Text>
             <Stack divider={<StackDivider borderColor="gray.400" />} borderWidth="1px" borderColor="gray.200" borderRadius="1rem" p="1rem" direction="column" mt="1rem">
                 {premises.map(([input, result], index) => (
                     <Flex key={index}>

@@ -12,7 +12,9 @@ export default function Calculator(props: BoxProps) {
         }} {...props}>
             <Heading as="h2">Calculator</Heading>
             <Tabs variant="soft-rounded" mt="1rem">
-                <TabList>
+                <TabList sx={{
+                    "--chakra-colors-gray-600": "#6883baff"
+                }}>
                     <Tab>Truth table</Tab>
                     <Tab>Compare 2 statements</Tab>
                     <Tab>Evaluate argument</Tab>

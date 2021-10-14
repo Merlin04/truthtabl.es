@@ -14,6 +14,7 @@ export default function Single() {
 
     return (
         <>
+            <Text mb="1rem">Generate a truth table for a symbolic logic statement.</Text>
             <Input result={result} onChange={setResult} input={input} onInputChange={setInput} />
             {result?.success && <Box sx={{
                 "& > *": {
@@ -23,7 +24,7 @@ export default function Single() {
                 <TypeIndicator data={result.truthTable} />
                 <TruthTable data={result.truthTable} />
             </Box>}
-            <Text color="gray.500" pt="1rem">
+            <Text color="primary.400" pt="1rem">
                 Confused? Try <Link d="inline-block" color="blue.500" onClick={() => setInput(example)}><pre>{example}</pre></Link>
             </Text>
         </>

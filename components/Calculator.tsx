@@ -1,13 +1,16 @@
-import * as React from 'react'
-import { Heading, Container, Tabs, TabPanels, TabList, TabPanel, Tab } from "@chakra-ui/react";
+import { Heading, Container, Tabs, TabPanels, TabList, TabPanel, Tab, Box, BoxProps } from "@chakra-ui/react";
 import Single from "./Single";
 import Compare from './Compare';
 import Argument from "./Argument";
 
-export default function App() {
+export default function Calculator(props: BoxProps) {
     return (
-        <Container p="1rem" maxW="container.lg">
-            <Heading>Symbolic logic truth table tool</Heading>
+        <Box bg="primary.600" color="white" p="2rem" borderRadius="1.5rem" sx={{
+            "& .chakra-button": {
+                color: "black"
+            }
+        }} {...props}>
+            <Heading as="h2">Calculator</Heading>
             <Tabs variant="soft-rounded" mt="1rem">
                 <TabList>
                     <Tab>Truth table</Tab>
@@ -26,6 +29,6 @@ export default function App() {
                     </TabPanel>
                 </TabPanels>
             </Tabs>
-       </Container>
+       </Box>
     )
 }

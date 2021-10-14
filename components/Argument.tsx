@@ -20,7 +20,7 @@ export default function Argument() {
             <Text>Determine if an argument is valid</Text>
             <Stack divider={<StackDivider borderColor="gray.400" />} borderWidth="1px" borderColor="gray.200" borderRadius="1rem" p="1rem" direction="column" mt="1rem">
                 {premises.map(([input, result], index) => (
-                    <Flex>
+                    <Flex key={index}>
                         <CloseButton size="sm" disabled={premises.length < 2} onClick={() => { premises.splice(index, 1); setPremises([...premises]); }} />
                         <Divider orientation="vertical" mx="0.5rem" borderColor="gray.400" h="auto" />
                         <Stack direction="column" flex={1}>

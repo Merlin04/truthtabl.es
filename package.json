@@ -1,0 +1,31 @@
+{
+  "name": "my-react-project",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview",
+    "generate": "ohm generateBundles --withTypes './src/parser/SymbolicLogic.ohm'"
+  },
+  "dependencies": {
+    "@chakra-ui/icons": "^1.0.15",
+    "@chakra-ui/react": "^1.6.9",
+    "@emotion/is-prop-valid": "^1.1.0",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "framer-motion": "^4",
+    "ohm-js": "^16.0.0",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
+    "ts-replace-all": "^1.0.0"
+  },
+  "devDependencies": {
+    "@ohm-js/cli": "^1.0.0",
+    "@types/node": "^16.9.1",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@vitejs/plugin-react-refresh": "^1.3.1",
+    "typescript": "^4.3.2",
+    "vite": "^2.5.4"
+  }
+}

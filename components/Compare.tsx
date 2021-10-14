@@ -45,7 +45,7 @@ export default function Compare() {
 
     return (
         <>
-            <Text>Compare two statements to determine if they are equivalent (always have the same outcome), contradictory (never have the same outcome), or neither</Text>
+            <Text pb="1rem">Compare two statements to determine if they are equivalent (always have the same outcome), contradictory (never have the same outcome), or neither.</Text>
             <Stack direction={{ sm: "column", md: "row" }} mb="1rem">
                 <Box flex={1}>
                     <Side input={inputs[0]} result={results[0]} />

@@ -5,7 +5,7 @@ import Argument from "./Argument";
 
 export default function Calculator(props: BoxProps) {
     return (
-        <Box bg="primary.600" color="white" p="2rem" borderRadius="1.5rem" sx={{
+        <Box bg="primary.600" color="white" sx={{
             "& .chakra-button": {
                 color: "black"
             }

@@ -1,6 +1,17 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { ChakraProvider, extendTheme } from "@chakra-ui/react"
+import { createBreakpoints } from '@chakra-ui/theme-tools';
+
+const breakpoints = createBreakpoints({
+  // Copied from https://github.com/chakra-ui/chakra-ui/blob/main/packages/theme/src/foundations/breakpoints.ts
+  sm: "30em",
+  md: "48em",
+  lg: "62em",
+  xl: "80em",
+  "2xl": "96em",
+  calculator: "66em"
+});
 
 const theme = extendTheme({
   colors: {
@@ -20,7 +31,8 @@ const theme = extendTheme({
       // Russian green
       400: "#6e9075ff"
     }
-  }/*,
+  },
+  breakpoints/*,
   styles: {
     global: {
       // styles for the `body`

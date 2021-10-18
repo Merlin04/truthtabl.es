@@ -1,7 +1,6 @@
 import React from "react";
-import { Table, Thead, Tr, Td, Th, Tbody, Box } from "@chakra-ui/react";
+import { Table, Thead, Tr, Td, Tbody } from "@chakra-ui/react";
 import { TruthTable as TruthTableResult, transpose } from "./parser/parser";
-import { CSSObject } from "@chakra-ui/styled-system";
 import ScrollShadow from "./ScrollShadow";
 
 export default function TruthTable({ data }: { data: TruthTableResult<any> }) {

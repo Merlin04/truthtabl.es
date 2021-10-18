@@ -151,15 +151,15 @@ const NAV_ITEMS: Array<NavItem> = [
     },
     {
         label: 'Logical operators',
-        href: '#'
+        href: '#operators'
     },
     {
         label: 'About truth tables',
-        href: ""
+        href: "#truthtables"
     },
     {
         label: 'FAQs',
-        href: '#'
+        href: '#faqs'
     },
 ];
 //#endregion
@@ -180,15 +180,14 @@ export default function App() {
                 <Heading as="h1">The best truth table generator on the web</Heading>
                 {/*<Heading as="h2" size="md" textAlign="center" mt="0.5rem">Solve truth tables with steps, analyze arguments and statements, check logical equivalence, and more!</Heading>*/}
             </Container>
-            {/* TODO: responsive */}
-            <Flex w="100%" bgColor="secondary.400" direction="column" alignItems="center" mb="4rem">
-                <Box maxW="container.lg" w="inherit" position="relative" top="3rem" id="calculator">
-                    <Calculator />
+            <Flex w="100%" bgColor={{ base: "primary.600", calculator: "secondary.400" }} direction="column" alignItems="center" mb={{ base: "1rem", calculator: "4rem" }}>
+                <Box maxW="container.lg" w="inherit" position="relative" top={{ base: 0, calculator: "3rem" }} id="calculator">
+                    <Calculator p="2rem" borderRadius={{base: 0, calculator: "1.5rem"}} />
                 </Box>
             </Flex>
             <Container p="1rem" maxW="container.lg">
                 <Stack>
-                    <Heading as="h2">Logical operator quick reference</Heading>
+                    <Heading as="h2" id="operators">Logical operator quick reference</Heading>
                     <Text>The first step in making a truth table is to translate your argument into the language of symbolic logic. Here's a logic translation cheat sheet to help out.</Text>
                     <ScrollShadow>
                         <Table>
@@ -245,9 +244,9 @@ export default function App() {
                             <TableCaption>Adapted from <i>Symbolic Logic</i> by Mark Storey (licensed under <Link color="blue.500" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC 4.0</Link>)</TableCaption>
                         </Table>
                     </ScrollShadow>
-                    <Heading as="h2">What is a truth table?</Heading>
+                    <Heading as="h2" id="truthtables">What is a truth table?</Heading>
                     <Heading as="h2">How do I use a truth table?</Heading>
-                    <Heading as="h2">FAQs</Heading>
+                    <Heading as="h2" id="faqs">FAQs</Heading>
                 </Stack>
             </Container>
         </>

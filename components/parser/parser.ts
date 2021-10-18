@@ -114,7 +114,7 @@ function buildRestOfTruthTable(semantics: SymbolicLogicSemantics, semanticsInst:
         Disjunction: dyadicActionFactory((a, b) => a || b, "v"),
         Conditional: dyadicActionFactory((a, b) => !(a && !b) /* or !a || b */, "⊃"),
         Biconditional: dyadicActionFactory((a, b) => a === b, "≡"),
-        Negation(arg0, arg1) {
+        Negation(_, arg1) {
             // If more monadic operators are added I should split this out into a factory, but for now it's fine
             const e = arg1.eval();
             return {
@@ -155,7 +155,6 @@ export default function parse(input: string): ({
         startExpr: unknown
     }
 }) {
-    const semantics = grammar.createSemantics();
     const match = grammar.match(input);
     if (match.succeeded()) {
         // Now let's build the truth table

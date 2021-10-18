@@ -3578,6 +3578,11 @@ scheduler@^0.20.2:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
 
+scroll-shadow-element@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/scroll-shadow-element/-/scroll-shadow-element-1.1.2.tgz#11299a5f432236c01080e51ea6dd9f1fd77f6ae0"
+  integrity sha512-00KlOJ1xvTTLM/pS4tWxg37Q9WVfRmQ+vmFSlVUZsED8bP80s1Sz+PN4E8ZnJf+WZibvR+orTppcNguqtWy0Rg==
+
 semver@^6.0.0, semver@^6.3.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.0.tgz#ee0a64c8af5e8ceea67687b133761e1becbd1d3d"

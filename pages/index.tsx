@@ -23,6 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
 import Calculator from "../components/Calculator";
+import ScrollShadow from "../components/ScrollShadow";
 
 //#region navbar
 // https://chakra-templates.dev/navigation/navbar
@@ -189,7 +190,7 @@ export default function App() {
                 <Stack>
                     <Heading as="h2">Logical operator quick reference</Heading>
                     <Text>The first step in making a truth table is to translate your argument into the language of symbolic logic. Here's a logic translation cheat sheet to help out.</Text>
-                    <Box overflowX="auto">
+                    <ScrollShadow>
                         <Table>
                             <Thead fontWeight="500">
                                 <Tr>
@@ -243,7 +244,7 @@ export default function App() {
                             </Tbody>
                             <TableCaption>Adapted from <i>Symbolic Logic</i> by Mark Storey (licensed under <Link color="blue.500" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC 4.0</Link>)</TableCaption>
                         </Table>
-                    </Box>
+                    </ScrollShadow>
                     <Heading as="h2">What is a truth table?</Heading>
                     <Heading as="h2">How do I use a truth table?</Heading>
                     <Heading as="h2">FAQs</Heading>

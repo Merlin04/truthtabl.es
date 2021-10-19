@@ -69,7 +69,11 @@ function Navbar() {
                 </Flex>
             </Flex>
 
-            <Collapse in={isOpen} animateOpacity>
+            <Collapse in={isOpen} animateOpacity style={{
+                // For some reason TypeScript doesn't know about these properties
+                position: "absolute",
+                width: "100%"
+            }}>
                 <MobileNav onClick={onToggle} />
             </Collapse>
         </Box>
@@ -181,7 +185,7 @@ export default function App() {
                 {/*<Heading as="h2" size="md" textAlign="center" mt="0.5rem">Solve truth tables with steps, analyze arguments and statements, check logical equivalence, and more!</Heading>*/}
             </Container>
             <Flex w="100%" bgColor={{ base: "primary.600", calculator: "secondary.400" }} direction="column" alignItems="center" mb={{ base: "1rem", calculator: "4rem" }}>
-                <Box maxW="container.lg" w="inherit" position="relative" top={{ base: 0, calculator: "3rem" }} id="calculator">
+                <Box maxW="container.lg" w="inherit" position="relative" top={{ base: 0, calculator: "3rem" }}>
                     <Calculator p="2rem" borderRadius={{base: 0, calculator: "1.5rem"}} />
                 </Box>
             </Flex>

@@ -10,7 +10,7 @@ export default function Calculator(props: BoxProps) {
                 color: "black"
             }
         }} {...props}>
-            <Heading as="h2">Calculator</Heading>
+            <Heading as="h2" id="calculator">Calculator</Heading>
             <Tabs variant="soft-rounded" mt="1rem">
                 <TabList sx={{
                     "--chakra-colors-gray-600": "#6883baff"

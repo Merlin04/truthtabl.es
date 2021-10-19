@@ -14,3 +14,18 @@ a {
 * {
   box-sizing: border-box;
 }
+
+html {
+  scroll-behavior: smooth;
+  /* Navbar is 76px in desktop */
+  scroll-padding-top: 5.75rem;
+}
+
+/* https://caniuse.com/mdn-css_properties_scroll-padding-top */
+/*[id]::before {
+  content: '';
+  display: block;
+  height: 5rem;
+  margin-top: -5rem;
+  visibility: hidden;
+}*/

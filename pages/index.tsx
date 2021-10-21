@@ -15,11 +15,13 @@ import {
     Table,
     Thead,
     Tbody,
-    Tfoot,
     Tr,
-    Th,
     Td,
-    TableCaption
+    TableCaption,
+    Image,
+    BoxProps,
+    OrderedList,
+    ListItem
 } from "@chakra-ui/react";
 import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
 import Calculator from "../components/Calculator";
@@ -168,6 +170,12 @@ const NAV_ITEMS: Array<NavItem> = [
 ];
 //#endregion
 
+function Quote(props: BoxProps) {
+    return (
+        <Box borderLeft="0.25rem" borderColor="gray.500" color="gray.700" borderStyle="solid" pl="1rem" fontStyle="italic" my="0.5rem" fontSize="1rem" {...props} />
+    )
+}
+
 export default function App() {
     return (
         <>
@@ -249,8 +257,47 @@ export default function App() {
                         </Table>
                     </ScrollShadow>
                     <Heading as="h2" id="truthtables">What is a truth table?</Heading>
+                    <Text flex={1} fontSize="1.1rem">
+                        <Image src="/images/undraw_Spreadsheets_re_alt0.svg" alt="Illustration of person looking at a spreadsheet" maxW="40%" float="right" ml="1rem" />
+                        A truth table is a table that you can use to work with logic statements. <Link color="blue.500" href="https://en.wikipedia.org/wiki/Truth_table">Wikipedia says that:</Link>
+                        <Quote>
+                            A truth table is a mathematical table used in logic—specifically in connection with Boolean algebra, boolean functions, and propositional calculus—which sets out the functional values of logical expressions on each of their functional arguments, that is, for each combination of values taken by their logical variables. In particular, truth tables can be used to show whether a propositional expression is true for all legitimate input values, that is, logically valid.
+                        </Quote>
+                        But that's not very helpful if you're not already a logician. Basically, a truth table shows all of the possible inputs and outputs of a logic statement.
+                        <Heading as="h3" size="md" mt="1rem" mb="0.5rem">What's a symbolic logic statement?</Heading>
+                        A symbolic logic statement is a way to represent a logical argument with symbols. So, you could write something like this:
+                        <Quote>
+                            I'm a human, or I'm a robot and I have a CPU for a brain.
+                        </Quote>
+                        into something like this:
+                        <Quote>
+                            H v (R &amp; C)
+                        </Quote>
+                        To translate this into symbolic logic, we turned each of the ____ of the statement into single letter identifiers, and words like <i>or</i> and <i>and</i> into the corresponding <i>logical operators</i> (<i>v</i> and <i>&amp;</i>). You can find a list of all logical operators <Link color="blue.500" href="#operators">here</Link>.
+                    </Text><Text fontSize="1.1rem">
+                        Now that we have a symbolic logic statement, we can generate a truth table for it. To do that, type it into <Link color="blue.500" href="#calculator">the calculator</Link>. You should see an output like this:
+                        <Image src="/images/example.png" alt="Screenshot of output of calculator (a truth table and indicators)" h="25rem" my="1rem" />
+                        At the very top, there's a thumbs up emoji indicating the statement is well-formed. If you added an error into the statement (like changing "&amp;" to "&amp;&amp;") that would go away and you'd see an error message. There's also a "Prettify" button to replace operators like <i>&gt;</i> or <i>=</i> with nicer-looking versions. Next, you'll see indicators showing that the statement is a <i>contingency</i>. This simply means that the statement could either be true or false, depending on whether the inputs (the identifiers) are true or false. Statements can also be tautologies (the statement is always true, no matter what the inputs are) or contradictions (always false). For example, <i>A v ~A</i> is a tautology because if you translate it to English, it's saying that "A is true or it's false", which of course is always true regardless of what A is. <i>A &amp; ~A</i> is a contradiction because it's saying that "A is true and it's false", and it's impossible for something to be both true and false at the same time. Our example is a contingency because it's possible for me to be neither a human or a robot, or I could be a robot but not have a CPU for a brain.
+                    </Text><Text fontSize="1.1rem">
+                        Finally, we have a truth table for our statement. Each component of our statement is broken out into a column of the table. The <i>main operator</i>'s column is highlighted; this is the "output" of the statement. Let's try using it! First, we have to determine what the value of each identifier is. I'm a human, I'm not a robot, and I don't have a CPU for a brain, so H is true, R is false, and C is also false. On the table, we can find the row where each of our identifiers has the value we determined:
+                        <Image src="/images/example2.png" alt="The truth table from above with the &lquo;T T F F F&rquo; row highlighted." my="1rem" />
+                        And we can see that in this row, the main operator is true, meaning that the statement is true!
+                    </Text>
                     <Heading as="h2">How do I use a truth table?</Heading>
+                    <Text fontSize="1.1rem">
+                        <Image src="/images/undraw_Detailed_analysis_re_tk6j.svg" alt="Illustration of person thinking logically" maxW="40%" ml="1rem" float="right" />
+                        To summarize, to make and use a truth table:
+                        <OrderedList>
+                            <ListItem>Translate your statement into symbolic logic</ListItem>
+                            <ListItem>Paste your statement into the <Link color="blue.500" href="#calculator">calculator</Link> to generate the truth table</ListItem>
+                            <ListItem>Find the row on the table where the values of the identifiers match your input values</ListItem>
+                            <ListItem>Read the value in the main operator column (highlighted) to see the result!</ListItem>
+                        </OrderedList>
+                    </Text>
                     <Heading as="h2" id="faqs">FAQs</Heading>
+                    <Text fontSize="1.1rem">
+                        <Image src="/images/undraw_Faq_re_31cw.svg" alt="Illustration of frequently asked questions" maxW="40%" ml="1rem" float="right" />
+                    </Text>
                 </Stack>
             </Container>
         </>

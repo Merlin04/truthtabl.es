@@ -1,6 +1,9 @@
 import grammar, { SymbolicLogicSemantics } from "./SymbolicLogic.ohm-bundle";
 import ohm, { MatchResult, NonterminalNode, TerminalNode as OTerminalNode } from "ohm-js";
 
+// TODO
+import "./proofBuilder";
+
 type NodeBase = {
     grammar: unknown,
     matchLength: number

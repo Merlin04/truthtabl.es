@@ -148,7 +148,7 @@ const argumentForms = ((argumentForms: {
     * Choose a premise and try to match it
         * If succeed, continue to the next premise
         * If not, try a different premise
-    * If fail, try a different argument
+    * If fail, try a different argument form
     * If succeed, generate conclusions from variables
  */
 
@@ -159,14 +159,11 @@ function removeEl<T extends Array<any>>(arr: T, index: number) {
     return arr;
 }
 
-// TODO remove - A sorted array of premises (order indicating the corresponding statement)
-
 /**
  * Check if an array of statements matches the premises of an argument
  * @returns A result object with a variables object containing corresponding values from the statements, or false if the statements cannot match the premises in any order
  */
 function matchPremises(premises: Node[], parsedStatements: Node[], vars: PMatchVars = {}): {
-    //nodes: Node[],
     vars: PMatchVars
 } | false {
     for (let i = 0; i < premises.length; i++) {
@@ -182,7 +179,6 @@ function matchPremises(premises: Node[], parsedStatements: Node[], vars: PMatchV
             const nextPremises = matchPremises(removeEl(premises, i), parsedStatements.slice(1), pRes.vars);
             if (nextPremises) {
                 return {
-                    //nodes: [premise, ...nextPremises.nodes],
                     vars: nextPremises.vars
                 };
             }
@@ -191,8 +187,6 @@ function matchPremises(premises: Node[], parsedStatements: Node[], vars: PMatchV
     return false;
 }
 
-//function filterMap<T extends Array<any>(arr: T, fn: ())
-
 // Addition returns a variable that's not in the premises; we need to handle this by creating a placeholder that can be handled in the frontend
 type PlaceholderNode = {
     _t: NodeType.PlaceholderNode
@@ -200,9 +194,6 @@ type PlaceholderNode = {
 
 function replaceVars(source: Node, vars: PMatchVars): Node<true> | PlaceholderNode {
     if(source.children.length === 0) {
-        /*if(!vars[source.token]) {
-            throw new Error(`No value found for variable ${source.token} while replacing variables in conclusion of argument form`);
-        }*/
         return vars[source.token] ?? {
             _t: NodeType.PlaceholderNode
         };
@@ -213,7 +204,6 @@ function replaceVars(source: Node, vars: PMatchVars): Node<true> | PlaceholderNo
     };
 }
 
-// .filter(a => a.premises.length === statements.length)
 const PLACEHOLDER_TOKEN = "%";
 export function stringifyNode(node: Node<any> | PlaceholderNode): string {
     if(node._t === NodeType.PlaceholderNode) {
@@ -228,9 +218,6 @@ export function stringifyNode(node: Node<any> | PlaceholderNode): string {
         return n._t === NodeType.Node && (n as Node<any>).children.length > 1 ? `(${stringified})` : stringified;
     }
     if(node.children.length === 1) {
-        /*if(node.children[0]._t === NodeType.Node && node.children[0].children.length > 1) {
-            return `${node.token}(${stringifyNode(node.children[0])})`;
-        }*/
         return node.token + stringifyChild(0);
     }
     if(node.children.length === 2) {
@@ -256,11 +243,6 @@ function getPossibilities(statements: string[]) {
             return [];
         }
     });
-    /*return argumentForms.filter(a => a.premises.length === statements.length).filter(a => {
-        // Figure out which statements correspond to which premises
-        let s = [...statements];
-        // Return possible conclusions
-    });*/
 }
 
 type PMatchVars = {
@@ -268,14 +250,6 @@ type PMatchVars = {
 };
 
 const commutativeOperators = ["v", "&"];
-
-/*function areNodesEqual(a: Node, b: Node): boolean {
-    const childrenEqual: {(): boolean} = () => a.children.every((v, i) => areNodesEqual(v, b.children[i]));
-
-    return a.token === b.token && a.children.length === b.children.length && (commutativeOperators.includes(a.token) ? (
-        childrenEqual() || (areNodesEqual(a.children[0], b.children[1]) && areNodesEqual(a.children[1], b.children[0]))
-    ) : childrenEqual());
-}*/
 
 function areNodesEqual(a: Node, b: Node, compareFn: { (a: Node, b: Node): boolean }) {
     const childrenEqual: { (): boolean } = () => a.children.every((v, i) => compareFn(v, b.children[i]));

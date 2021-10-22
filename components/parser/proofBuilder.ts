@@ -173,6 +173,12 @@ function matchPremises(premises: Node[], parsedStatements: Node[], vars: PMatchV
         const premise = premises[i];
         const pRes = patternMatchNode(premise, parsedStatements[0], vars);
         if (pRes) {
+            if(premises.length === 1) {
+                // There aren't any more premises to check
+                return {
+                    vars: pRes.vars
+                };
+            }
             const nextPremises = matchPremises(removeEl(premises, i), parsedStatements.slice(1), pRes.vars);
             if (nextPremises) {
                 return {
@@ -218,8 +224,8 @@ export function stringifyNode(node: Node<any> | PlaceholderNode): string {
     }
     const stringifyChild = (index: number) => {
         const n = node.children[index];
-        const s = stringifyNode(n);
-        return n._t === NodeType.Node && (n as Node<any>).children.length > 1 ? `(${n})` : n;
+        const stringified = stringifyNode(n);
+        return n._t === NodeType.Node && (n as Node<any>).children.length > 1 ? `(${stringified})` : stringified;
     }
     if(node.children.length === 1) {
         /*if(node.children[0]._t === NodeType.Node && node.children[0].children.length > 1) {
@@ -233,7 +239,7 @@ export function stringifyNode(node: Node<any> | PlaceholderNode): string {
     throw new Error("During stringification of a node, a node has more than 2 children");
 }
 
-function getPossibilies(statements: string[]) {
+function getPossibilities(statements: string[]) {
     const parsedStatements = statements.map(parse);
     return argumentForms.flatMap(arg => {
         if(arg.premises.length !== statements.length) return [];
@@ -271,17 +277,17 @@ const commutativeOperators = ["v", "&"];
     ) : childrenEqual());
 }*/
 
+function areNodesEqual(a: Node, b: Node, compareFn: { (a: Node, b: Node): boolean }) {
+    const childrenEqual: { (): boolean } = () => a.children.every((v, i) => compareFn(v, b.children[i]));
+
+    return a.token === b.token && a.children.length === b.children.length && (commutativeOperators.includes(a.token) ? (
+        childrenEqual() || (compareFn(a.children[0], b.children[1]) && compareFn(a.children[1], b.children[0]))
+    ) : childrenEqual());
+};
+
 function patternMatchNode(pattern: Node, input: Node, vars: PMatchVars = {}): {
     vars: PMatchVars
 } | false {
-    const areNodesEqual = (a: Node, b: Node, compareFn: { (a: Node, b: Node): boolean }) => {
-        const childrenEqual: { (): boolean } = () => a.children.every((v, i) => compareFn(v, b.children[i]));
-
-        return a.token === b.token && a.children.length === b.children.length && (commutativeOperators.includes(a.token) ? (
-            childrenEqual() || (compareFn(a.children[0], b.children[1]) && compareFn(a.children[1], b.children[0]))
-        ) : childrenEqual());
-    };
-
     if (pattern.children.length === 0) {
         // It's an identifier
         if (vars[pattern.token] !== undefined) {
@@ -338,9 +344,9 @@ pmExpect("A v A", "~(A v B) v ~(A v B)", true);
 pmExpect("A v A", "~(A v B) v ~(A v C)", false);
 */
 
-console.log(getPossibilies([
+console.log(getPossibilities([
     "A > B",
     "~B"
-]))
+]).map(p => p.results.map(r => stringifyNode(r))));
 
 export { };

@@ -185,7 +185,7 @@ export default function App() {
                 <meta name="description" content="The best truth table calculator on the web. Solve truth tables with steps, analyze arguments and statements, check logical equivalence, and more!" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <Box pos="sticky" top="0" maxW="container.lg" mx="auto" zIndex="9999" mb="2rem">
+            <Box pos="sticky" top="0" maxW="container.lg" mx="auto" zIndex="1300" mb="2rem">
                 <Navbar />
             </Box>
             <Container p="1rem" maxW="container.lg" d="flex" flexDirection="column" alignItems="center" mb="2rem">

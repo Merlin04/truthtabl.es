@@ -1,4 +1,4 @@
-import { Stack, StackDivider, Heading, CloseButton, Flex, Divider, Box, Button, Text } from "@chakra-ui/react";
+import { Stack, StackDivider, Heading, CloseButton, Flex, Divider, Box, Button, Text, useDisclosure } from "@chakra-ui/react";
 import React from "react";
 import parse, { buildMultipleTruthTable, transpose } from "./parser/parser";
 import { AddIcon } from "@chakra-ui/icons";
@@ -6,6 +6,7 @@ import { Side } from "./Compare";
 import ohm from "ohm-js";
 import TruthTable from "./TruthTable";
 import { Indicator } from "./TypeIndicator";
+import ProofBuilder from "./ProofBuilder";
 
 export default function Argument() {
     const [premises, setPremises] = React.useState<[
@@ -44,8 +45,10 @@ export default function Argument() {
 }
 
 function ArgumentResults({ data }: { data: ohm.MatchResult[] }) {
-    console.log(data);
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
     const table = buildMultipleTruthTable(data, true);
+    console.log(data);
 
     // An argument is invalid if there exists a row where all premises are true yet the conclusion is false
     const valid = transpose(table.cols.filter((_, index) => table.main.includes(index)).map(col => col.slice(1))).every(row => !row.every((val, index, array) => index === array.length - 1 ? !val : val));
@@ -57,6 +60,15 @@ function ArgumentResults({ data }: { data: ohm.MatchResult[] }) {
                 <Indicator active={!valid} label="Invalid" />
             </Flex>
             <TruthTable data={table} />
+            {valid && (
+                <>
+                    <Button onClick={onOpen}>Open proof builder</Button>
+                    <ProofBuilder isOpen={isOpen} onClose={onClose} data={data.map(d => 
+                        //@ts-expect-error -  It doesn't know that the items in data will always be valid
+                        d.input
+                    )} />
+                </>          
+            )}
         </>
     );
 }

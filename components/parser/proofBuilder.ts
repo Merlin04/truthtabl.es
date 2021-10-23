@@ -51,6 +51,18 @@ const semantics = (() => {
     return semantics;
 })();
 
+// https://gist.github.com/newmanbrad/bf83d49bfaa0bfb4094fe9f2b0548bef
+let isObject = (val: any) => val && typeof val === 'object';
+function deepFreezeObject<T>(obj: T): T {
+  if(isObject(obj) && !Object.isFrozen(obj)){ 
+    // Recusively call until all child objects are frozen
+    //@ts-expect-error
+    Object.keys(obj).forEach(name => deepFreezeObject(obj[name]));
+    Object.freeze(obj);
+  }
+  return obj;
+}
+
 const argumentForms = ((argumentForms: {
     name: string;
     abbreviation: string;
@@ -63,11 +75,12 @@ const argumentForms = ((argumentForms: {
         return semantics(match).eval();
     }
 
-    return argumentForms.map(a => ({
+    // Deep-freezing helps prevent against mutability bugs
+    return deepFreezeObject(argumentForms.map(a => ({
         ...a,
         premises: a.premises.map(parse),
         conclusion: a.conclusion.map(parse)
-    }));
+    })));
 })([
     {
         name: "Modus Ponens",
@@ -153,10 +166,10 @@ const argumentForms = ((argumentForms: {
  */
 
 // Wrapper for mutating array method
-function removeEl<T extends Array<any>>(arr: T, index: number) {
+export function removeEl<T extends Array<any>>(arr: T, index: number) {
     const newArr = [...arr];
-    arr.splice(index, 1);
-    return arr;
+    newArr.splice(index, 1);
+    return newArr;
 }
 
 /**
@@ -226,7 +239,7 @@ export function stringifyNode(node: Node<any> | PlaceholderNode): string {
     throw new Error("During stringification of a node, a node has more than 2 children");
 }
 
-function getPossibilities(statements: string[]) {
+export function getPossibilities(statements: string[]) {
     const parsedStatements = statements.map(parse);
     return argumentForms.flatMap(arg => {
         if(arg.premises.length !== statements.length) return [];
@@ -236,7 +249,7 @@ function getPossibilities(statements: string[]) {
             // Apply the variables to the conclusion
             return [{
                 arg,
-                results: arg.conclusion.map(c => replaceVars(c, res.vars))
+                results: arg.conclusion.map(c => stringifyNode(replaceVars(c, res.vars)))
             }];
         }
         else {
@@ -266,7 +279,6 @@ function patternMatchNode(pattern: Node, input: Node, vars: PMatchVars = {}): {
         // It's an identifier
         if (vars[pattern.token] !== undefined) {
             // Try to match the value
-            //return patternMatchNode(vars[pattern.token], input, vars);
             const e = (a: Node, b: Node) => areNodesEqual(a, b, e);
             return areNodesEqual(vars[pattern.token], input, e) ? { vars } : false;
         }
@@ -316,11 +328,8 @@ pmExpect("A v B", "A & B", false);
 pmExpect("~A", "A v B", false);
 pmExpect("A v A", "~(A v B) v ~(A v B)", true);
 pmExpect("A v A", "~(A v B) v ~(A v C)", false);
-*/
 
 console.log(getPossibilities([
     "A > B",
     "~B"
-]).map(p => p.results.map(r => stringifyNode(r))));
-
-export { };
+]).map(p => p.results.map(r => stringifyNode(r))));*/

@@ -48,7 +48,6 @@ function ArgumentResults({ data }: { data: ohm.MatchResult[] }) {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     const table = buildMultipleTruthTable(data, true);
-    console.log(data);
 
     // An argument is invalid if there exists a row where all premises are true yet the conclusion is false
     const valid = transpose(table.cols.filter((_, index) => table.main.includes(index)).map(col => col.slice(1))).every(row => !row.every((val, index, array) => index === array.length - 1 ? !val : val));

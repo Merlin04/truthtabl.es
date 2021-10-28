@@ -1,10 +1,12 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Stack, Box, Heading, Text, Divider, ButtonProps } from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Stack, Box, Heading, Text, Divider, ButtonProps, BoxProps, CloseButton } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import parse from "./parser/parser";
-import { getPossibilities, removeEl } from "./parser/proofBuilder";
+import { getPossibilities, getReplacementPossibilities, PLACEHOLDER_TOKEN, removeEl } from "./parser/proofBuilder";
 
-function BoxButton(props: ButtonProps) {
-    const { children, ...otherProps } = props;
+function BoxButton(props: ButtonProps & {
+    boxProps?: BoxProps
+}) {
+    const { children, boxProps, ...otherProps } = props;
     return (
         <Button
             bgColor="transparent"
@@ -22,28 +24,31 @@ function BoxButton(props: ButtonProps) {
             textAlign="left"
             {...otherProps}
         >
-            <Box>
+            <Box {...boxProps}>
                 {children}
             </Box>
         </Button>
     )
 }
 
+type Step = {
+    statement: (string | [string, ReturnType<typeof parse> | undefined])[],
+    source: number[],
+    argType: string
+};
+
 export default function ProofBuilder(props: {
     isOpen: boolean,
     onClose(): void,
     data: string[]
 }) {
-    const [steps, setSteps] = useState<(string | [
-        string,
-        ReturnType<typeof parse> | undefined
-    ])[]>([]);
+    const [steps, setSteps] = useState<Step[]>([]);
     const [selected, setSelected] = useState<number[]>([]);
+    const [highlighted, setHighlighted] = useState<number[]>([]);
 
     function getStepIncludingPremises(index: number) {
         if(index >= props.data.length - 1) {
-            const s = steps[index - props.data.length + 1];
-            return Array.isArray(s) ? s[0] : s;
+            return steps[index - props.data.length + 1].statement.reduce<string>((acc, cur) => acc + (Array.isArray(cur) ? cur[0] : cur), "");
         }
         else {
             return props.data[index];
@@ -51,18 +56,44 @@ export default function ProofBuilder(props: {
     }
 
     const argumentForms = useMemo(() => getPossibilities(selected.map(getStepIncludingPremises)), [selected]);
-
-    console.log(steps);
-    console.log(argumentForms);
+    const replacementForms = useMemo(() => selected.length === 1 ? getReplacementPossibilities(getStepIncludingPremises(selected[0])) : [], [selected]);
 
     const getStepProps = (index: number) => ({
-        bgColor: selected.includes(index) ? "blue.100" : "transparent",
+        bgColor: selected.includes(index) ? "blue.100" : (highlighted.includes(index) ? "#d6f1ff" : "transparent"),
         _hover: selected.includes(index) ? {
             bgColor: undefined,
             opacity: 0.8
         } : undefined,
         onClick: () => selected.includes(index) ? setSelected(removeEl(selected, selected.indexOf(index))) : setSelected([...selected, index])
-    });
+    });console.log(steps);
+
+    const ArgFormButton = ({ res, arg }: { res: string, arg: {
+        arg: {
+            name: string;
+            abbreviation: string;
+        }
+    }}) => (
+        <BoxButton boxProps={{
+            display: "flex",
+            alignItems: "baseline",
+            width: "100%"
+        }} onClick={() => {
+            setSelected([]);
+            setSteps([
+                ...steps,
+                {
+                    statement: res.split(PLACEHOLDER_TOKEN).reduce<Step["statement"]>((acc, cur, index) => index !== 0 ? [...acc, ["", undefined], cur] : [...acc, cur], []),
+                    source: selected,
+                    argType: arg.arg.abbreviation
+                }
+            ]);
+        }}>
+            <Text flex="1" fontFamily="monospace" fontSize="1rem">{res}</Text>
+            <Text fontSize="0.9rem">{arg.arg.name} ({arg.arg.abbreviation})</Text>
+        </BoxButton>
+    );
+
+    const success = useMemo(() => steps.some(s => s.statement[0] as string /* TODO */ === props.data[props.data.length - 1]), [steps]);
 
     return (
         <Modal isOpen={props.isOpen} onClose={props.onClose}>
@@ -81,7 +112,14 @@ export default function ProofBuilder(props: {
                         <Stack>
                             <Box>
                                 <Text fontSize="0.9rem">Conclusion</Text>
-                                <Text fontFamily="monospace" fontSize="1.1rem">{props.data[props.data.length - 1]}</Text>
+                                <Stack direction="row" alignItems="baseline" backgroundColor={success ? "green.50" : "red.50"} borderRadius="1rem" px="1rem" py="0.5rem">
+                                    <Text fontFamily="monospace" fontSize="1.1rem">{props.data[props.data.length - 1]}</Text>
+                                    {success ? (
+                                        <Text>👍</Text>
+                                    ) : (
+                                        <Text>👎</Text>
+                                    )}
+                                </Stack>
                             </Box>
                             <Divider />
                             {/* Argument premises */}
@@ -95,9 +133,21 @@ export default function ProofBuilder(props: {
                             {/* Added steps */}
                             {steps.length > 0 ? (
                                 steps.map((step, index) => (
-                                    <BoxButton {...getStepProps(index + props.data.length - 1)}>
+                                    <BoxButton {...getStepProps(index + props.data.length - 1)} onMouseOver={() => {
+                                        setHighlighted(step.source);
+                                    }} onMouseOut={() => {
+                                        setHighlighted([]);
+                                    }}  boxProps={{
+                                        display: "flex",
+                                        alignItems: "baseline",
+                                        width: "100%"
+                                    }}>
                                         {`${index + props.data.length}. `}
-                                        <Text fontFamily="monospace" d="inline-block" ml="0.5rem" fontSize="1rem">{step}</Text>
+                                        <Text flex="1" fontFamily="monospace" d="inline-block" ml="0.5rem" fontSize="1rem">{step.statement /* TODO */}</Text>
+                                        <Text color="gray.500">{step.source.map(s => s + 1).join(", ")} {step.argType}</Text>
+                                        {steps.every(s => !s.source.includes(index + props.data.length)) && (
+                                            <CloseButton />
+                                        )}
                                     </BoxButton>
                                 ))
                             ) : (
@@ -107,18 +157,21 @@ export default function ProofBuilder(props: {
                         <Stack>
                             <Heading as="h2" size="md">Argument forms</Heading>
                             {selected.length > 0 ? (
-                                argumentForms.map(arg => arg.results.map(res => (
-                                    <BoxButton onClick={() => {
-                                        setSelected([]);
-                                        setSteps([
-                                            ...steps,
-                                            res
-                                        ]);
-                                    }}>
-                                        <Text fontFamily="monospace" fontSize="1rem">{res}</Text>
-                                        <Text fontSize="0.9rem">{arg.arg.name} ({arg.arg.abbreviation})</Text>
-                                    </BoxButton>
-                                )))
+                                <>
+                                    {argumentForms.length > 0 ? argumentForms.map(arg => arg.results.map(res => (
+                                        <ArgFormButton res={res} arg={arg} />
+                                    ))) : (
+                                        <Text color="gray.500">No matching argument forms found</Text>
+                                    )}
+                                    <Heading as="h2" size="md" pt="1rem">Replacement rules</Heading>
+                                    {selected.length !== 1 ? (
+                                        <Text color="gray.500">Multiple items are selected</Text>
+                                    ) : replacementForms.length > 0 ? replacementForms.map(rule => rule.results.map(res => (
+                                        <ArgFormButton res={res} arg={rule} />
+                                    ))) : (
+                                        <Text color="gray.500">No matching replacement rules found</Text>
+                                    )}
+                                </>
                             ) : (
                                 <Text color="gray.500">Nothing's selected yet</Text>
                             )}

@@ -63,23 +63,115 @@ function deepFreezeObject<T>(obj: T): T {
   return obj;
 }
 
+// I think a solution to the problem is to allow a premise to be an array of possible cases
+// Actually wait nevermind I don't think that would work
+
+
+
+// It should detect if introduced variables
+
+// ((~A) v B) = (C v (C & D))
+
+// What if it just detects all the ors/ands in the premises and tries swapping them in all permutations until it succeeds?
+
+function parseArgFormPart(input: string): Node {
+    const match = grammar.match(input);
+    if (!match.succeeded()) throw new Error(`Unable to parse argument form part ${input}`);
+    return semantics(match).eval();
+}
+
+const replacementRules = ((replacementRules: {
+    name: string,
+    abbreviation: string,
+    rules: [string, string][]
+}[]) => deepFreezeObject(replacementRules.map(a => ({
+    ...a,
+    rules: a.rules.map(r => r.map(parseArgFormPart))
+}))))([
+    {
+        name: "Commutation",
+        abbreviation: "Com",
+        rules: [
+            ["P & Q", "Q & P"],
+            ["P v Q", "Q v P"]
+        ]
+    },
+    {
+        name: "Associativity",
+        abbreviation: "Assoc",
+        rules: [
+            ["P & (Q & R)", "(P & Q) & R"],
+            ["P v (Q v R)", "(P v Q) v R"]
+        ]
+    },
+    {
+        name: "Double Negation",
+        abbreviation: "DN",
+        rules: [["P", "~~P"]]
+    },
+    {
+        name: "De Morgan's",
+        abbreviation: "DM",
+        rules: [
+            ["~(P & Q)", "~P v ~Q"],
+            ["~(P v Q)", "~P & ~Q"]
+        ]
+    },
+    {
+        name: "Distribution",
+        abbreviation: "Dist",
+        rules: [
+            ["P v (Q & R)", "(P v Q) & (P v R)"],
+            ["P & (Q v R)", "(P & Q) v (P & R)"]
+        ]
+    },
+    {
+        name: "Transposition",
+        abbreviation: "Trans",
+        rules: [
+            ["P > Q", "~Q > ~P"],
+            ["~P > ~Q", "Q > P"]
+        ]
+    },
+    {
+        name: "Implication",
+        abbreviation: "Imp",
+        rules: [["P > Q", "~P v Q"]]
+    },
+    {
+        name: "Exportation",
+        abbreviation: "Exp",
+        rules: [["(P & Q) > R", "P > (Q > R)"]]
+    },
+    {
+        name: "Tautology",
+        abbreviation: "Taut",
+        rules: [
+            ["P", "P & P"],
+            ["P", "P v P"]
+        ]
+    },
+    {
+        name: "Equivalence",
+        abbreviation: "Equiv",
+        rules: [
+            ["P = Q", "(P > Q) & (Q > P)"],
+            ["P = Q", "(P & Q) v (~P & ~Q)"]
+        ]
+    }
+]);
+
 const argumentForms = ((argumentForms: {
     name: string;
     abbreviation: string;
     premises: string[];
     conclusion: string[];
 }[]) => {
-    function parse(input: string): Node {
-        const match = grammar.match(input);
-        if (!match.succeeded()) throw new Error(`Unable to parse argument form part ${input}`);
-        return semantics(match).eval();
-    }
-
     // Deep-freezing helps prevent against mutability bugs
     return deepFreezeObject(argumentForms.map(a => ({
         ...a,
-        premises: a.premises.map(parse),
-        conclusion: a.conclusion.map(parse)
+        premises: a.premises.map(parseArgFormPart),
+        conclusion: a.conclusion.map(parseArgFormPart)
     })));
 })([
     {
@@ -108,6 +200,15 @@ const argumentForms = ((argumentForms: {
             "~P"
         ],
         conclusion: ["Q"]
+    },
+    {
+        name: "Disjunctive Syllogism",
+        abbreviation: "DS",
+        premises: [
+            "P v Q",
+            "~Q"
+        ],
+        conclusion: ["P"]
     },
     {
         name: "Hypothetical Syllogism",
@@ -152,8 +253,25 @@ const argumentForms = ((argumentForms: {
             "P v R"
         ],
         conclusion: ["Q v S"]
-    }
+    },
+    // TODO
+    /*...(replacementRules.flatMap(r => (
+        r.rules.flatMap(rule => ([{
+            name: r.name,
+            abbreviation: r.abbreviation,
+            premises: [rule[0]],
+            conclusion: [rule[1]]
+        },
+        {
+            name: r.name,
+            abbreviation: r.abbreviation,
+            premises: [rule[1]],
+            conclusion: [rule[0]]
+        }]))
+    )))*/
 ]);
+
+// TODO: replacementRules used to be here
 
 /*
  * Algorithm
@@ -217,7 +335,7 @@ function replaceVars(source: Node, vars: PMatchVars): Node<true> | PlaceholderNo
     };
 }
 
-const PLACEHOLDER_TOKEN = "%";
+export const PLACEHOLDER_TOKEN = "%";
 export function stringifyNode(node: Node<any> | PlaceholderNode): string {
     if(node._t === NodeType.PlaceholderNode) {
         return PLACEHOLDER_TOKEN;
@@ -258,18 +376,31 @@ export function getPossibilities(statements: string[]) {
     });
 }
 
+export function getReplacementPossibilities(statement: string) {
+    const parsed = parse(statement);
+    return replacementRules.flatMap(arg => ({
+        arg,
+        results: arg.rules.flatMap(rule => [rule, [rule[1], rule[0]]]).flatMap(rulePart => {
+            const res = patternMatchNode(rulePart[0], parsed);
+            if(res) return stringifyNode(replaceVars(rulePart[1], res.vars));
+            return [];
+        })
+    }));
+}
+
 type PMatchVars = {
     [key: string]: Node
 };
 
-const commutativeOperators = ["v", "&"];
+// No auto commutation
+//const commutativeOperators = ["v", "&"];
 
 function areNodesEqual(a: Node, b: Node, compareFn: { (a: Node, b: Node): boolean }) {
     const childrenEqual: { (): boolean } = () => a.children.every((v, i) => compareFn(v, b.children[i]));
 
-    return a.token === b.token && a.children.length === b.children.length && (commutativeOperators.includes(a.token) ? (
+    return a.token === b.token && a.children.length === b.children.length && /*(commutativeOperators.includes(a.token) ? (
         childrenEqual() || (compareFn(a.children[0], b.children[1]) && compareFn(a.children[1], b.children[0]))
-    ) : childrenEqual());
+    ) :*/ childrenEqual()/*)*/;
 };
 
 function patternMatchNode(pattern: Node, input: Node, vars: PMatchVars = {}): {
@@ -332,4 +463,12 @@ pmExpect("A v A", "~(A v B) v ~(A v C)", false);
 console.log(getPossibilities([
     "A > B",
     "~B"
-]).map(p => p.results.map(r => stringifyNode(r))));*/
+]).map(p => p.results.map(r => stringifyNode(r))));
+console.log(getPossibilities([
+    "A v B",
+    "~B"
+]));
+console.log(getPossibilities([
+    "~B",
+    "A v B"
+]));*/

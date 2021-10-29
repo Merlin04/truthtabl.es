@@ -37,6 +37,11 @@ type Step = {
     argType: string
 };
 
+function d<T>(arg: T): T {
+    console.log(arg);
+    return arg;
+}
+
 export default function ProofBuilder(props: {
     isOpen: boolean,
     onClose(): void,
@@ -95,6 +100,8 @@ export default function ProofBuilder(props: {
 
     const success = useMemo(() => steps.some(s => s.statement[0] as string /* TODO */ === props.data[props.data.length - 1]), [steps]);
 
+    console.log("Steps");console.log(steps);console.log("p.d");console.log(props.data);
+
     return (
         <Modal isOpen={props.isOpen} onClose={props.onClose}>
             <ModalOverlay />
@@ -112,7 +119,7 @@ export default function ProofBuilder(props: {
                         <Stack>
                             <Box>
                                 <Text fontSize="0.9rem">Conclusion</Text>
-                                <Stack direction="row" alignItems="baseline" backgroundColor={success ? "green.50" : "red.50"} borderRadius="1rem" px="1rem" py="0.5rem">
+                                <Stack direction="row" alignItems="baseline" backgroundColor={success ? "green.100" : "red.100"} borderRadius="1rem" px="1rem" py="0.5rem">
                                     <Text fontFamily="monospace" fontSize="1.1rem">{props.data[props.data.length - 1]}</Text>
                                     {success ? (
                                         <Text>👍</Text>
@@ -145,8 +152,17 @@ export default function ProofBuilder(props: {
                                         {`${index + props.data.length}. `}
                                         <Text flex="1" fontFamily="monospace" d="inline-block" ml="0.5rem" fontSize="1rem">{step.statement /* TODO */}</Text>
                                         <Text color="gray.500">{step.source.map(s => s + 1).join(", ")} {step.argType}</Text>
-                                        {steps.every(s => !s.source.includes(index + props.data.length)) && (
-                                            <CloseButton />
+                                        {steps.every(s => !s.source.includes(index + props.data.length - 1)) && (
+                                            <CloseButton size="sm" ml="0.25rem" onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelected(selected.filter(s => s !== index + props.data.length - 1));
+                                                setHighlighted([]);
+                                                setSteps(removeEl(steps, index).map(v => ({
+                                                    ...v,
+                                                    // You shouldn't be able to click close if the index is contained in any of the source arrays, so no need for >=
+                                                    source: v.source.map(s => s > (index + props.data.length - 1) ? s - 1 : s)
+                                                })));
+                                            }} />
                                         )}
                                     </BoxButton>
                                 ))

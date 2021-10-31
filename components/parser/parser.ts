@@ -1,4 +1,4 @@
-import grammar, { SymbolicLogicSemantics } from "./SymbolicLogic.ohm-bundle";
+import grammar, { SymbolicLogicSemantics } from "generated/SymbolicLogic.ohm-bundle";
 import ohm, { MatchResult, NonterminalNode, TerminalNode as OTerminalNode } from "ohm-js";
 
 type NodeBase = {

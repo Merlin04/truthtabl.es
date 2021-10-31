@@ -1,5 +1,5 @@
 import ohm from "ohm-js";
-import grammar from "./SymbolicLogic.ohm-bundle";
+import grammar from "generated/SymbolicLogic.ohm-bundle";
 
 enum NodeType {
     Node,

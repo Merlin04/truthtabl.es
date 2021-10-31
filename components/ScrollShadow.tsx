@@ -1,7 +1,7 @@
 import { Box, BoxProps } from "@chakra-ui/react";
 
 if(typeof window !== "undefined") {
-    require("../node_modules/scroll-shadow-element/scroll-shadow-element");
+    import("../node_modules/scroll-shadow-element/scroll-shadow-element");
 }
 
 function ScrollShadowComponentWrapper(props: {

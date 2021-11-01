@@ -6,7 +6,7 @@ enum NodeType {
     PlaceholderNode
 };
 
-type Node<CanAcceptPlaceholderNodes extends (true | false) = false> = {
+export type Node<CanAcceptPlaceholderNodes extends (true | false) = false> = {
     _t: NodeType.Node;
     token: string;
     children: (CanAcceptPlaceholderNodes extends true ? (Node<true> | PlaceholderNode) : Node<false>)[];
@@ -335,6 +335,8 @@ export function stringifyNode(node: Node<any> | PlaceholderNode): string {
     throw new Error("During stringification of a node, a node has more than 2 children");
 }
 
+const uniq = <T>(items: T[]) => [...new Set(items)];
+
 export function getPossibilities(statements: string[]) {
     const parsedStatements = statements.map(parse);
     return argumentForms.flatMap(arg => {
@@ -345,7 +347,7 @@ export function getPossibilities(statements: string[]) {
             // Apply the variables to the conclusion
             return [{
                 arg,
-                results: arg.conclusion.map(c => stringifyNode(replaceVars(c, res.vars)))
+                results: uniq(arg.conclusion.map(c => stringifyNode(replaceVars(c, res.vars))))
             }];
         }
         else {
@@ -358,11 +360,11 @@ export function getReplacementPossibilities(statement: string) {
     const parsed = parse(statement);
     return replacementRules.flatMap(arg => ({
         arg,
-        results: arg.rules.flatMap(rule => [rule, [rule[1], rule[0]]]).flatMap(rulePart => {
+        results: uniq(arg.rules.flatMap(rule => [rule, [rule[1], rule[0]]]).flatMap(rulePart => {
             const res = patternMatchNode(rulePart[0], parsed);
             if(res) return stringifyNode(replaceVars(rulePart[1], res.vars));
             return [];
-        })
+        }))
     }));
 }
 

@@ -348,7 +348,6 @@ export default function ProofBuilder(props: {
                         </Stack>
                     </ModalBody>
                     <ModalFooter>
-                        <Button>Copy</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>

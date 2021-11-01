@@ -12,7 +12,52 @@ type Node<CanAcceptPlaceholderNodes extends (true | false) = false> = {
     children: (CanAcceptPlaceholderNodes extends true ? (Node<true> | PlaceholderNode) : Node<false>)[];
 }
 
-const semantics = (() => {
+export function createSemantics<T>({ dyadic, monadic, identifier, grouping, signature }: {
+    dyadic: (this: ohm.NonterminalNode, arg0: ohm.TerminalNode, arg1: ohm.NonterminalNode, arg2: ohm.TerminalNode) => T,
+    monadic: (this: ohm.NonterminalNode, arg0: ohm.NonterminalNode, arg1: ohm.TerminalNode) => T,
+    identifier: (this: ohm.NonterminalNode, arg0: ohm.TerminalNode) => T,
+    grouping?: (this: ohm.NonterminalNode, arg0: ohm.NonterminalNode, arg1: ohm.TerminalNode, arg2: ohm.NonterminalNode) => T,
+    signature?: string
+}) {
+    const semantics = grammar.createSemantics();
+    const wrapper = function(this: ohm.NonterminalNode, arg0: any) { return arg0.eval(...Object.values(this.args)); };
+    semantics.addOperation<T>("eval" + (signature ?? ""), {
+        Exp: wrapper,
+        Dyadic: wrapper,
+        Monadic: wrapper,
+        Grouping: grouping ?? (function(_, arg1, _2) { return arg1.eval(...Object.values(this.args)); }),
+        OperatorParam: wrapper,
+        Conjunction: dyadic,
+        Disjunction: dyadic,
+        Conditional: dyadic,
+        Biconditional: dyadic,
+        Negation: monadic,
+        Identifier: identifier
+    });
+
+    return semantics;
+}
+
+const semantics = createSemantics<Node>({
+    // TODO: normalize operator tokens
+    dyadic: (arg0, arg1, arg2) => ({
+        _t: NodeType.Node,
+        token: arg1.sourceString,
+        children: [arg0, arg2].map(a => a.eval())
+    }),
+    monadic: (arg0, arg1) => ({
+        _t: NodeType.Node,
+        token: arg0.sourceString,
+        children: [arg1.eval()]
+    }),
+    identifier: (arg0) => ({
+        _t: NodeType.Node,
+        token: arg0.sourceString,
+        children: []
+    })
+});
+
+/*const semantics = (() => {
     const semantics = grammar.createSemantics();
     const wrapper = (arg0: any) => arg0.eval();
     const dyadic = (arg0: ohm.TerminalNode, arg1: ohm.NonterminalNode, arg2: ohm.TerminalNode) => ({
@@ -49,7 +94,7 @@ const semantics = (() => {
     });
 
     return semantics;
-})();
+})();*/
 
 // https://gist.github.com/newmanbrad/bf83d49bfaa0bfb4094fe9f2b0548bef
 let isObject = (val: any) => val && typeof val === 'object';
@@ -437,6 +482,8 @@ function patternMatchNode(pattern: Node, input: Node, vars: PMatchVars = {}): {
 }
 
 const parse = (input: string) => semantics(grammar.match(input)).eval() as Node;
+
+export const parseAsNode = parse;
 
 /*const expect = <T>(desc: string, input: T, expected: T) => {
     if(input === expected) {

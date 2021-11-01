@@ -1,6 +1,6 @@
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Stack, Box, Heading, Text, Divider, ButtonProps, BoxProps, CloseButton } from "@chakra-ui/react";
 import React, { createContext, useContext, useMemo, useState } from "react";
-import { createSemantics, getPossibilities, getReplacementPossibilities, parseAsNode, removeEl, stringifyNode, Node } from "./parser/proofBuilder";
+import { createSemantics, getPossibilities, getReplacementPossibilities, parseAsNode, removeEl, stringifyNode, Node, PLACEHOLDER_TOKEN } from "./parser/proofBuilder";
 import grammar from "./parser/SymbolicLogic.ohm-bundle";
 import { createState } from "niue";
 
@@ -29,7 +29,7 @@ function BoxButton(props: ButtonProps & {
                 {children}
             </Box>
         </Button>
-    )
+    );
 }
 
 type Step = {
@@ -131,13 +131,37 @@ function ArgFormButton({ res, arg }: { res: string, arg: {
             alignItems: "baseline",
             width: "100%"
         }} onClick={() => {
+            if(res.includes("%")) {
+                // For now there will only ever be one placeholder
+                // This isn't a great solution but it's easier than making an entire modal
+                let replacement: string | undefined = undefined;
+                while(!replacement) {
+                    const str = prompt("Enter value for placeholder");
+                    try {
+                        parseAsNode(str ?? "");
+                        replacement = str ?? "";
+                    }
+                    catch(e) {
+                        alert("Failed to parse");
+                    }
+                }
+                // Replace the node
+                let newRes = res.replace(PLACEHOLDER_TOKEN, replacement);
+                try {
+                    parseAsNode(newRes);
+                }
+                catch(e) {
+                    // Maybe it needed parentheses
+                    newRes = res.replace(PLACEHOLDER_TOKEN, `(${replacement})`);
+                }
+                res = newRes;
+            }
             setStore({
                 selected: [],
                 steps: [
                     ...steps,
                     {
-                        // TODO: handle placeholders
-                        statement: Array.isArray(selected) ? res : nodeReplaceAtPath(getStepIncludingPremises(selected.source), selected.path, res) /*.split(PLACEHOLDER_TOKEN).reduce<Step["statement"]>((acc, cur, index) => index !== 0 ? [...acc, ["", undefined], cur] : [...acc, cur], [])*/,
+                        statement: Array.isArray(selected) ? res : nodeReplaceAtPath(getStepIncludingPremises(selected.source), selected.path, res),
                         source: Array.isArray(selected) ? selected : [selected.source],
                         argType: arg.arg.abbreviation
                     }
@@ -212,7 +236,7 @@ export default function ProofBuilder(props: {
                 : setStore({ selected: [...selected, index] })
     });
 
-    const success = useMemo(() => steps.some(s => s.statement === props.data[props.data.length - 1]), [steps]);
+    const success = useMemo(() => steps.some(s => s.statement === props.data[props.data.length - 1]) || props.data.slice(0, -1).some(s => s === props.data[props.data.length - 1]), [steps]);
 
     const ReplacementRules = (
         <>

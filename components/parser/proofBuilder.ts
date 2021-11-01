@@ -57,45 +57,6 @@ const semantics = createSemantics<Node>({
     })
 });
 
-/*const semantics = (() => {
-    const semantics = grammar.createSemantics();
-    const wrapper = (arg0: any) => arg0.eval();
-    const dyadic = (arg0: ohm.TerminalNode, arg1: ohm.NonterminalNode, arg2: ohm.TerminalNode) => ({
-        _t: NodeType.Node,
-        token: arg1.sourceString,
-        children: [arg0, arg2].map(a => a.eval())
-    } as Node);
-    const monadic = (arg0: ohm.NonterminalNode, arg1: ohm.TerminalNode) => ({
-        _t: NodeType.Node,
-        token: arg0.sourceString,
-        children: [arg1.eval()]
-    } as Node);
-    // TODO: normalize operator tokens
-    semantics.addOperation<Node>("eval", {
-        Exp: wrapper,
-        Dyadic: wrapper,
-        Monadic: wrapper,
-        Grouping(_, arg1, _2) {
-            return arg1.eval();
-        },
-        OperatorParam: wrapper,
-        Conjunction: dyadic,
-        Disjunction: dyadic,
-        Conditional: dyadic,
-        Biconditional: dyadic,
-        Negation: monadic,
-        Identifier(arg0) {
-            return {
-                _t: NodeType.Node,
-                token: arg0.sourceString,
-                children: []
-            };
-        }
-    });
-
-    return semantics;
-})();*/
-
 // https://gist.github.com/newmanbrad/bf83d49bfaa0bfb4094fe9f2b0548bef
 let isObject = (val: any) => val && typeof val === 'object';
 function deepFreezeObject<T>(obj: T): T {
@@ -107,17 +68,6 @@ function deepFreezeObject<T>(obj: T): T {
   }
   return obj;
 }
-
-// I think a solution to the problem is to allow a premise to be an array of possible cases
-// Actually wait nevermind I don't think that would work
-
-
-
-// It should detect if introduced variables
-
-// ((~A) v B) = (C v (C & D))
-
-// What if it just detects all the ors/ands in the premises and tries swapping them in all permutations until it succeeds?
 
 function parseArgFormPart(input: string): Node {
     const match = grammar.match(input);
@@ -298,25 +248,8 @@ const argumentForms = ((argumentForms: {
             "P v R"
         ],
         conclusion: ["Q v S"]
-    },
-    // TODO
-    /*...(replacementRules.flatMap(r => (
-        r.rules.flatMap(rule => ([{
-            name: r.name,
-            abbreviation: r.abbreviation,
-            premises: [rule[0]],
-            conclusion: [rule[1]]
-        },
-        {
-            name: r.name,
-            abbreviation: r.abbreviation,
-            premises: [rule[1]],
-            conclusion: [rule[0]]
-        }]))
-    )))*/
+    }
 ]);
-
-// TODO: replacementRules used to be here
 
 /*
  * Algorithm
@@ -437,15 +370,10 @@ type PMatchVars = {
     [key: string]: Node
 };
 
-// No auto commutation
-//const commutativeOperators = ["v", "&"];
-
 function areNodesEqual(a: Node, b: Node, compareFn: { (a: Node, b: Node): boolean }) {
     const childrenEqual: { (): boolean } = () => a.children.every((v, i) => compareFn(v, b.children[i]));
 
-    return a.token === b.token && a.children.length === b.children.length && /*(commutativeOperators.includes(a.token) ? (
-        childrenEqual() || (compareFn(a.children[0], b.children[1]) && compareFn(a.children[1], b.children[0]))
-    ) :*/ childrenEqual()/*)*/;
+    return a.token === b.token && a.children.length === b.children.length && childrenEqual();
 };
 
 function patternMatchNode(pattern: Node, input: Node, vars: PMatchVars = {}): {
@@ -484,38 +412,3 @@ function patternMatchNode(pattern: Node, input: Node, vars: PMatchVars = {}): {
 const parse = (input: string) => semantics(grammar.match(input)).eval() as Node;
 
 export const parseAsNode = parse;
-
-/*const expect = <T>(desc: string, input: T, expected: T) => {
-    if(input === expected) {
-        console.log(`Success: ${desc}`);
-    }
-    else {
-        console.error(`Fail: ${desc}
-Expected: ${JSON.stringify(expected)}
-Got: ${JSON.stringify(input)}`);
-    }
-};
-
-const s = (v: ReturnType<typeof patternMatchNode>) => !!v;
-const pmTest = (a: string, b: string) => s(patternMatchNode(parse(a), parse(b)));
-const pmExpect = (a: string, b: string, expected: boolean) => expect(`${a} ${expected ? "matches" : "doesn't match"} ${b}`, pmTest(a, b), expected);
-
-
-pmExpect("A v B", "A v B", true);
-pmExpect("A v B", "A & B", false);
-pmExpect("~A", "A v B", false);
-pmExpect("A v A", "~(A v B) v ~(A v B)", true);
-pmExpect("A v A", "~(A v B) v ~(A v C)", false);
-
-console.log(getPossibilities([
-    "A > B",
-    "~B"
-]).map(p => p.results.map(r => stringifyNode(r))));
-console.log(getPossibilities([
-    "A v B",
-    "~B"
-]));
-console.log(getPossibilities([
-    "~B",
-    "A v B"
-]));*/

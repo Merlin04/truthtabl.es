@@ -2984,6 +2984,11 @@ next@^12.0.1:
     "@next/swc-win32-ia32-msvc" "12.0.1"
     "@next/swc-win32-x64-msvc" "12.0.1"
 
+niue@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/niue/-/niue-0.1.1.tgz#32d5a070737927f850cbbfc3ff4dd611a6969d8d"
+  integrity sha512-ieKGmy41caH0QSMQeduHD22LS3O3g1amkdh8s9AWtu/6PxvXyYJRgczJjYveAQb4LS+/ZG90DHQdlXF0PvjTIw==
+
 node-fetch@2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"

@@ -1,6 +1,6 @@
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Stack, Box, Heading, Text, Divider, ButtonProps, BoxProps, CloseButton } from "@chakra-ui/react";
 import React, { createContext, useContext, useMemo, useState } from "react";
-import { createSemantics, getPossibilities, getReplacementPossibilities, parseAsNode, removeEl, stringifyNode } from "./parser/proofBuilder";
+import { createSemantics, getPossibilities, getReplacementPossibilities, parseAsNode, removeEl, stringifyNode, Node } from "./parser/proofBuilder";
 import grammar from "./parser/SymbolicLogic.ohm-bundle";
 import { createState } from "niue";
 
@@ -48,7 +48,7 @@ const StatementTreeNode = (props: {
     const { path, ...otherProps } = props;
     const [hovered, setHovered] = useState(false);
 
-    const thisIsSelected = !Array.isArray(selected) && selected.source === source && selected.path.every((val, i) => val === path[i]);
+    const thisIsSelected = !Array.isArray(selected) ? selected.source === source && selected.path.every((val, i) => val === path[i]) : path.length === 0 && selected.includes(source);
     const bgColor = (hovered || thisIsSelected) ? "blue.100" : undefined;
 
     return <Box display="inline-block" bgColor={bgColor} sx={{
@@ -65,7 +65,7 @@ const StatementTreeNode = (props: {
     }} onClick={(e) => {
         e.stopPropagation();
         setStore({
-            selected: thisIsSelected ? [] : {
+            selected: thisIsSelected ? [] : path.length === 0 ? [source] : {
                 source,
                 path
             }
@@ -102,6 +102,19 @@ function StatementTree(props: {
     );
 }
 
+function nodeReplaceAtPath(sourceStr: string, path: number[], replacementStr: string) {
+    // TODO: cache parsed nodes and deep clone source
+    const source = parseAsNode(sourceStr);
+    const replacement = parseAsNode(replacementStr);
+    path.reduce((node, cur, index) => {
+        if(index === path.length - 1) {
+            node.children[cur] = replacement;
+        }
+        return node.children[cur];
+    }, source);
+    return stringifyNode(source);
+}
+
 function ArgFormButton({ res, arg }: { res: string, arg: {
     arg: {
         name: string;
@@ -109,6 +122,8 @@ function ArgFormButton({ res, arg }: { res: string, arg: {
     }
 }}) {
     const { steps, selected } = useStore(["steps", "selected"]);
+    const propsData = useContext(PropsDataContext);
+    const getStepIncludingPremises = getStepIncludingPremisesFactory(propsData, steps);
 
     return (
         <BoxButton boxProps={{
@@ -122,8 +137,8 @@ function ArgFormButton({ res, arg }: { res: string, arg: {
                     ...steps,
                     {
                         // TODO: handle placeholders
-                        statement: res /*.split(PLACEHOLDER_TOKEN).reduce<Step["statement"]>((acc, cur, index) => index !== 0 ? [...acc, ["", undefined], cur] : [...acc, cur], [])*/,
-                        source: selected as number[], // TODO: handle fragments
+                        statement: Array.isArray(selected) ? res : nodeReplaceAtPath(getStepIncludingPremises(selected.source), selected.path, res) /*.split(PLACEHOLDER_TOKEN).reduce<Step["statement"]>((acc, cur, index) => index !== 0 ? [...acc, ["", undefined], cur] : [...acc, cur], [])*/,
+                        source: Array.isArray(selected) ? selected : [selected.source],
                         argType: arg.arg.abbreviation
                     }
                 ]
@@ -150,6 +165,17 @@ const [useStore, setStore] = createState<{
     highlighted: []
 });
 
+const PropsDataContext = createContext<string[]>([]);
+
+const getStepIncludingPremisesFactory = (propsData: string[], steps: Step[]) => (index: number) => {
+    if(index >= propsData.length - 1) {
+        return steps[index - propsData.length + 1].statement;
+    }
+    else {
+        return propsData[index];
+    }
+};
+
 export default function ProofBuilder(props: {
     isOpen: boolean,
     onClose(): void,
@@ -157,14 +183,7 @@ export default function ProofBuilder(props: {
 }) {
     const { steps, selected, highlighted } = useStore();
 
-    function getStepIncludingPremises(index: number) {
-        if(index >= props.data.length - 1) {
-            return steps[index - props.data.length + 1].statement;
-        }
-        else {
-            return props.data[index];
-        }
-    }
+    const getStepIncludingPremises = getStepIncludingPremisesFactory(props.data, steps);
 
     function getFragment(f: StepFragment) {
         const src = getStepIncludingPremises(f.source);
@@ -209,104 +228,106 @@ export default function ProofBuilder(props: {
     );
 
     return (
-        <Modal isOpen={props.isOpen} onClose={props.onClose}>
-            <ModalOverlay />
-            <ModalContent maxW="800px">
-                <ModalHeader>
-                    Proof builder
-                </ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                    <Stack direction="row" spacing="1rem" sx={{
-                        "& > *": {
-                            flex: 1
-                        }
-                    }}>
-                        <Stack>
-                            <Box>
-                                <Text fontSize="0.9rem">Conclusion</Text>
-                                <Stack direction="row" alignItems="baseline" backgroundColor={success ? "green.100" : "red.100"} borderRadius="1rem" px="1rem" py="0.5rem">
-                                    <Text fontFamily="monospace" fontSize="1.1rem">{props.data[props.data.length - 1]}</Text>
-                                    {success ? (
-                                        <Text>👍</Text>
-                                    ) : (
-                                        <Text>👎</Text>
-                                    )}
-                                </Stack>
-                            </Box>
-                            <Divider />
-                            {/* Argument premises */}
-                            {props.data.slice(0, -1).map((premise, index) => (
-                                <BoxButton {...getStepProps(index)}>
-                                    {`${index + 1}. `}
-                                    <Text fontFamily="monospace" d="inline-block" ml="0.5rem" fontSize="1rem">
-                                        <StatementTree statement={premise} index={index} />
-                                    </Text>
-                                </BoxButton>
-                            ))}
-                            <Divider />
-                            {/* Added steps */}
-                            {steps.length > 0 ? (
-                                steps.map((step, index) => (
-                                    <BoxButton {...getStepProps(index + props.data.length - 1)} onMouseOver={() => {
-                                        setStore({ highlighted: step.source });
-                                    }} onMouseOut={() => {
-                                        setStore({ highlighted: [] });
-                                    }}  boxProps={{
-                                        display: "flex",
-                                        alignItems: "baseline",
-                                        width: "100%"
-                                    }}>
-                                        {`${index + props.data.length}. `}
-                                        <Text flex="1" fontFamily="monospace" d="inline-block" ml="0.5rem" fontSize="1rem">
-                                            <StatementTree statement={step.statement} index={index + props.data.length - 1}/>
-                                        </Text>
-                                        <Text color="gray.500">{step.source.map(s => s + 1).join(", ")} {step.argType}</Text>
-                                        {steps.every(s => !s.source.includes(index + props.data.length - 1)) && (
-                                            <CloseButton size="sm" ml="0.25rem" onClick={(e) => {
-                                                e.stopPropagation();
-                                                setStore({
-                                                    selected: Array.isArray(selected) ? selected.filter(s => s !== index + props.data.length - 1) : selected.source === index + props.data.length - 1 ? [] : selected,
-                                                    highlighted: [],
-                                                    steps: removeEl(steps, index).map(v => ({
-                                                        ...v,
-                                                        // You shouldn't be able to click close if the index is contained in any of the source arrays, so no need for >=
-                                                        source: v.source.map(s => s > (index + props.data.length - 1) ? s - 1 : s)
-                                                    }))
-                                                });
-                                            }} />
+        <PropsDataContext.Provider value={props.data}>
+            <Modal isOpen={props.isOpen} onClose={props.onClose}>
+                <ModalOverlay />
+                <ModalContent maxW="800px">
+                    <ModalHeader>
+                        Proof builder
+                    </ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <Stack direction="row" spacing="1rem" sx={{
+                            "& > *": {
+                                flex: 1
+                            }
+                        }}>
+                            <Stack>
+                                <Box>
+                                    <Text fontSize="0.9rem">Conclusion</Text>
+                                    <Stack direction="row" alignItems="baseline" backgroundColor={success ? "green.100" : "red.100"} borderRadius="1rem" px="1rem" py="0.5rem">
+                                        <Text fontFamily="monospace" fontSize="1.1rem">{props.data[props.data.length - 1]}</Text>
+                                        {success ? (
+                                            <Text>👍</Text>
+                                        ) : (
+                                            <Text>👎</Text>
                                         )}
+                                    </Stack>
+                                </Box>
+                                <Divider />
+                                {/* Argument premises */}
+                                {props.data.slice(0, -1).map((premise, index) => (
+                                    <BoxButton {...getStepProps(index)}>
+                                        {`${index + 1}. `}
+                                        <Text fontFamily="monospace" d="inline-block" ml="0.5rem" fontSize="1rem">
+                                            <StatementTree statement={premise} index={index} />
+                                        </Text>
                                     </BoxButton>
-                                ))
-                            ) : (
-                                <Text color="gray.500">Get started by selecting premises to build from</Text>
-                            )}
-                        </Stack>
-                        <Stack>
-                            {Array.isArray(selected) ? (
-                                <>
-                                    <Heading as="h2" size="md">Argument forms</Heading>
-                                    {selected.length > 0 ? (
-                                        <>
-                                            {argumentForms.length > 0 ? argumentForms.map(arg => arg.results.map(res => (
-                                                <ArgFormButton res={res} arg={arg} />
-                                            ))) : (
-                                                <Text color="gray.500">No matching argument forms found</Text>
+                                ))}
+                                <Divider />
+                                {/* Added steps */}
+                                {steps.length > 0 ? (
+                                    steps.map((step, index) => (
+                                        <BoxButton {...getStepProps(index + props.data.length - 1)} onMouseOver={() => {
+                                            setStore({ highlighted: step.source });
+                                        }} onMouseOut={() => {
+                                            setStore({ highlighted: [] });
+                                        }}  boxProps={{
+                                            display: "flex",
+                                            alignItems: "baseline",
+                                            width: "100%"
+                                        }}>
+                                            {`${index + props.data.length}. `}
+                                            <Text flex="1" fontFamily="monospace" d="inline-block" ml="0.5rem" fontSize="1rem">
+                                                <StatementTree statement={step.statement} index={index + props.data.length - 1}/>
+                                            </Text>
+                                            <Text color="gray.500">{step.source.map(s => s + 1).join(", ")} {step.argType}</Text>
+                                            {steps.every(s => !s.source.includes(index + props.data.length - 1)) && (
+                                                <CloseButton size="sm" ml="0.25rem" onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setStore({
+                                                        selected: Array.isArray(selected) ? selected.filter(s => s !== index + props.data.length - 1) : selected.source === index + props.data.length - 1 ? [] : selected,
+                                                        highlighted: [],
+                                                        steps: removeEl(steps, index).map(v => ({
+                                                            ...v,
+                                                            // You shouldn't be able to click close if the index is contained in any of the source arrays, so no need for >=
+                                                            source: v.source.map(s => s > (index + props.data.length - 1) ? s - 1 : s)
+                                                        }))
+                                                    });
+                                                }} />
                                             )}
-                                            {ReplacementRules}
-                                        </>
-                                    ) : (
-                                        <Text color="gray.500">Nothing's selected yet</Text>
-                                    )}
-                                </>
-                            ) : ReplacementRules}
+                                        </BoxButton>
+                                    ))
+                                ) : (
+                                    <Text color="gray.500">Get started by selecting premises to build from</Text>
+                                )}
+                            </Stack>
+                            <Stack>
+                                {Array.isArray(selected) ? (
+                                    <>
+                                        <Heading as="h2" size="md">Argument forms</Heading>
+                                        {selected.length > 0 ? (
+                                            <>
+                                                {argumentForms.length > 0 ? argumentForms.map(arg => arg.results.map(res => (
+                                                    <ArgFormButton res={res} arg={arg} />
+                                                ))) : (
+                                                    <Text color="gray.500">No matching argument forms found</Text>
+                                                )}
+                                                {ReplacementRules}
+                                            </>
+                                        ) : (
+                                            <Text color="gray.500">Nothing's selected yet</Text>
+                                        )}
+                                    </>
+                                ) : ReplacementRules}
+                            </Stack>
                         </Stack>
-                    </Stack>
-                </ModalBody>
-                <ModalFooter>
-                    <Button>Copy</Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button>Copy</Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+        </PropsDataContext.Provider>
     )
 }

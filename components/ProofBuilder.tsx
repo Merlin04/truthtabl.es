@@ -33,44 +33,10 @@ function BoxButton(props: ButtonProps & {
 }
 
 type Step = {
-    statement: /*(string | [string, ReturnType<typeof parse> | undefined])[]*/ string,
+    statement: string,
     source: number[],
     argType: string
 };
-
-/*const statementTreeSemantics = (() => {
-    const semantics = grammar.createSemantics();
-    const wrapper = (arg0: any) => arg0.eval();
-    const dyadic = (arg0: ohm.TerminalNode, arg1: ohm.NonterminalNode, arg2: ohm.TerminalNode) => (
-        <Box>{arg0.eval()}{arg1.sourceString}{arg2.eval()}</Box>
-    );
-    const monadic = (arg0: ohm.NonterminalNode, arg1: ohm.TerminalNode) => (
-        <Box>{arg0.sourceString}{arg1.eval()}</Box>
-    );
-    semantics.addOperation<React.ReactNode>("eval", {
-        Exp: wrapper,
-        Dyadic: wrapper,
-        Monadic: wrapper,
-        Grouping(arg0, arg1, arg2) {
-            return (
-                <Box>{arg0.sourceString}{arg1.eval()}{arg2.sourceString}</Box>
-            );
-        },
-        OperatorParam: wrapper,
-        Conjunction: dyadic,
-        Disjunction: dyadic,
-        Conditional: dyadic,
-        Biconditional: dyadic,
-        Negation: monadic,
-        Identifier(arg0) {
-            return (
-                <Box>
-                    {arg0.sourceString}
-                </Box>
-            );
-        }
-    });
-})();*/
 
 const StatementTreeSourceContext = createContext(0);
 
@@ -207,7 +173,6 @@ export default function ProofBuilder(props: {
     }
 
     const argumentForms = useMemo(() => Array.isArray(selected) ? getPossibilities(selected.map(getStepIncludingPremises)) : [], [selected]);
-    //const replacementForms = useMemo(() => !Array.isArray(selected) || selected.length === 1 ? getReplacementPossibilities(getStepIncludingPremises(selected[0])) : [], [selected]);
     const replacementForms = useMemo(() =>
         Array.isArray(selected) && selected.length !== 1 ? [] :
         getReplacementPossibilities(

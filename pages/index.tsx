@@ -273,7 +273,7 @@ export default function App() {
                         <Quote>
                             H v (R &amp; C)
                         </Quote>
-                        To translate this into symbolic logic, we turned each of the ____ of the statement into single letter identifiers, and words like <i>or</i> and <i>and</i> into the corresponding <i>logical operators</i> (<i>v</i> and <i>&amp;</i>). You can find a list of all logical operators <Link color="blue.500" href="#operators">here</Link>.
+                        To translate this into symbolic logic, we turned each of the <i>atomic statements</i> of the statement into single letter constants, and words like <i>or</i> and <i>and</i> into the corresponding <i>logical operators</i> (<i>v</i> and <i>&amp;</i>). You can find a list of all logical operators <Link color="blue.500" href="#operators">here</Link>.
                     </Text><Text fontSize="1.1rem">
                         Now that we have a symbolic logic statement, we can generate a truth table for it. To do that, type it into <Link color="blue.500" href="#calculator">the calculator</Link>. You should see an output like this:
                         <Image src="/images/example.png" alt="Screenshot of output of calculator (a truth table and indicators)" h="25rem" my="1rem" />
@@ -283,7 +283,7 @@ export default function App() {
                         <Image src="/images/example2.png" alt="The truth table from above with the &lquo;T T F F F&rquo; row highlighted." my="1rem" />
                         And we can see that in this row, the main operator is true, meaning that the statement is true!
                     </Text>
-                    <Heading as="h2">How do I use a truth table?</Heading>
+                    <Heading as="h2">How to use a truth table?</Heading>
                     <Text fontSize="1.1rem">
                         <Image src="/images/undraw_Detailed_analysis_re_tk6j.svg" alt="Illustration of person thinking logically" maxW="40%" ml="1rem" float="right" />
                         To summarize, to make and use a truth table:
@@ -297,6 +297,10 @@ export default function App() {
                     <Heading as="h2" id="faqs">FAQs</Heading>
                     <Text fontSize="1.1rem">
                         <Image src="/images/undraw_Faq_re_31cw.svg" alt="Illustration of frequently asked questions" maxW="40%" ml="1rem" float="right" />
+                        <Heading as="h3" size="md">Are truth tables hard?</Heading>
+                        Truth tables can seem a bit intimidating at first, but once you get the hang of how to use them they're very straightforward. Using them is just a matter of plugging in values and finding the corresponding row.
+                        <Heading as="h3" size="md">Why are truth tables useful?</Heading>
+                        Truth tables allow you to easily analyze a logical statement. It allows you to see the output of the statement for all combinations of inputs, which is helpful if the statement is very complicated and difficult to manually evaluate.
                     </Text>
                 </Stack>
             </Container>

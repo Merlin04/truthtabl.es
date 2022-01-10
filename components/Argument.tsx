@@ -18,7 +18,7 @@ export default function Argument() {
 
     return (
         <>
-            <Text pb="1rem">Determine if an argument constructed of premises and a conclusion is valid (which means that if all of the premises are true, the conclusion is true).</Text>
+            <Text pb="1rem">Determine if an argument constructed of premises and a conclusion is valid (which means that if all of the premises are true, the conclusion is true), then construct a proof for the argument.</Text>
             <Stack divider={<StackDivider borderColor="gray.400" />} borderWidth="1px" borderColor="gray.200" borderRadius="1rem" p="1rem" direction="column" mt="1rem">
                 {premises.map(([input, result], index) => (
                     <Flex key={index}>
@@ -61,7 +61,7 @@ function ArgumentResults({ data }: { data: ohm.MatchResult[] }) {
             <TruthTable data={table} />
             {valid && (
                 <>
-                    <Button onClick={onOpen}>Open proof builder</Button>
+                    <Button onClick={onOpen}>Open proof builder (beta)</Button>
                     <ProofBuilder isOpen={isOpen} onClose={onClose} data={data.map(d => 
                         //@ts-expect-error -  It doesn't know that the items in data will always be valid
                         d.input

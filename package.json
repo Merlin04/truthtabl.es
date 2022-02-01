@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate": "ohm generateBundles --withTypes './src/parser/SymbolicLogic.ohm'"
+    "generate": "ohm generateBundles --withTypes './components/parser/SymbolicLogic.ohm'"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.0.15",

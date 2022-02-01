@@ -6,10 +6,10 @@ SymbolicLogic {
 		| "[" Dyadic "]"
 		| "{" Dyadic "}"
 	OperatorParam = Identifier | Monadic | Grouping
-	Conjunction = OperatorParam ("&" | "/\\" | "&&") OperatorParam
+	Conjunction = OperatorParam ("&&" | "&" | "/\\") OperatorParam
 	Disjunction = OperatorParam ("v" | "\\/" | "||") OperatorParam
 	Conditional = OperatorParam (">" | "" | "⊃") OperatorParam
-	Biconditional = OperatorParam ("=" | "≡" | "==") OperatorParam
+	Biconditional = OperatorParam ("==" | "=" | "≡") OperatorParam
 	Negation = ("~" | "!") OperatorParam
 	Identifier = "A".."Z"
 }

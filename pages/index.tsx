@@ -219,21 +219,21 @@ export default function App() {
                             }}>
                                 <Tr>
                                     <Td>~</Td>
-                                    <Td></Td>
+                                    <Td>!</Td>
                                     <Td>Tilde</Td>
                                     <Td>Negation (NOT)</Td>
                                     <Td>it is not the case that A; not A; it is false that A</Td>
                                 </Tr>
                                 <Tr>
                                     <Td>&amp;</Td>
-                                    <Td></Td>
+                                    <Td>&amp;&amp;, /\</Td>
                                     <Td>Ampersand</Td>
                                     <Td>Conjunction (AND)</Td>
                                     <Td>A and B; A but B; A yet B; A while B; A moreover B; A however B; A nonetheless B; A still B; A nevertheless B; A also B; A although B; both A and B; A additionally B; A furthermore B</Td>
                                 </Tr>
                                 <Tr>
                                     <Td>v</Td>
-                                    <Td></Td>
+                                    <Td>||, \/</Td>
                                     <Td>Wedge</Td>
                                     <Td>Disjunction (OR)</Td>
                                     <Td>A or B; A unless B</Td>
@@ -247,7 +247,7 @@ export default function App() {
                                 </Tr>
                                 <Tr>
                                     <Td>≡</Td>
-                                    <Td>=</Td>
+                                    <Td>==, =</Td>
                                     <Td>Triple bar</Td>
                                     <Td>Biconditional (IFF)</Td>
                                     <Td>A if and only if B; A just in case that B; A is a necessary and sufficient condition for B; A is equivalent to B</Td>

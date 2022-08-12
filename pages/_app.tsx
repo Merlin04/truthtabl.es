@@ -2,6 +2,7 @@ import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { ChakraProvider, extendTheme } from "@chakra-ui/react"
 import { createBreakpoints } from '@chakra-ui/theme-tools';
+import Head from 'next/head';
 
 const breakpoints = createBreakpoints({
   // Copied from https://github.com/chakra-ui/chakra-ui/blob/main/packages/theme/src/foundations/breakpoints.ts
@@ -54,9 +55,16 @@ const theme = extendTheme({
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
+    <>
+    <Head>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-KVBQJ8E0ZG"></script>
+<script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
+gtag('js',new Date());gtag('config','G-KVBQJ8E0ZG')`}} />
+    </Head>
     <ChakraProvider theme={theme}>
       <Component {...pageProps} />
     </ChakraProvider>
+    </>
   );
 }
 export default MyApp

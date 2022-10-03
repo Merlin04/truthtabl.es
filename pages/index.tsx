@@ -181,9 +181,10 @@ export default function App() {
         <>
             <Head>
                 {/* TODO */}
-                <title>TruthTables - Truth table generator</title>
-                <meta name="description" content="The best truth table calculator on the web. Solve truth tables with steps, analyze arguments and statements, check logical equivalence, and more!" />
+                <title>Truth Table Generator with Conclusion - TruthTables</title>
+                <meta name="description" content="Most powerful online logic truth table calculator. Easily construct truth tables with steps, generate conclusions, check tautologies, analyze arguments, and more!" />
                 <link rel="icon" href="/favicon.ico" />
+                
             </Head>
             <Box pos="sticky" top="0" maxW="container.lg" mx="auto" zIndex="1300" mb="2rem">
                 <Navbar />

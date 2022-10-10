@@ -296,12 +296,18 @@ export default function App() {
                         </OrderedList>
                     </Text>
                     <Heading as="h2" id="faqs">FAQs</Heading>
-                    <Text fontSize="1.1rem">
+                    <Text fontSize="1.1rem" sx={{
+                        "& h3": {
+                            paddingTop: "1rem"
+                        }
+                    }}>
                         <Image src="/images/undraw_Faq_re_31cw.svg" alt="Illustration of frequently asked questions" maxW="40%" ml="1rem" float="right" />
                         <Heading as="h3" size="md">Are truth tables hard?</Heading>
                         Truth tables can seem a bit intimidating at first, but once you get the hang of how to use them they're very straightforward. Using them is just a matter of plugging in values and finding the corresponding row.
                         <Heading as="h3" size="md">Why are truth tables useful?</Heading>
                         Truth tables allow you to easily analyze a logical statement. It allows you to see the output of the statement for all combinations of inputs, which is helpful if the statement is very complicated and difficult to manually evaluate.
+                        <Heading as="h3" size="md">What are some other terms for symbolic logic?</Heading>
+                        Symbolic logic can also be referred to as "formal logic," or more broadly, "mathematical logic." You can view more synonyms on <Link color="blue.500" href="https://www.powerthesaurus.org/symbolic_logic/synonyms">Power Thesaurus</Link> (an excellent thesaurus site).
                     </Text>
                 </Stack>
             </Container>

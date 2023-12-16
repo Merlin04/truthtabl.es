@@ -1,9 +1,8 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { ChakraProvider, extendTheme } from "@chakra-ui/react"
-import { createBreakpoints } from '@chakra-ui/theme-tools';
-import Head from 'next/head';
 import Script from 'next/script';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const breakpoints = {
   // Copied from https://github.com/chakra-ui/chakra-ui/blob/main/packages/theme/src/foundations/breakpoints.ts
@@ -63,6 +62,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
 gtag('js',new Date());gtag('config','G-KVBQJ8E0ZG')`}
       </Script>
+      <SpeedInsights />
       <ChakraProvider theme={theme}>
         <Component {...pageProps} />
       </ChakraProvider>

@@ -6,7 +6,7 @@ import "ts-replace-all";
 import TypeIndicator from './TypeIndicator';
 import Input from "./Input";
 
-const example = "~{[(A & G) v ~(U > ~S)] v I}";
+const example = "(A & B) > C";
 
 export default function Single() {
     const [input, setInput] = React.useState("");

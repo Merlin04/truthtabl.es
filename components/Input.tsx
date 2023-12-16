@@ -23,7 +23,7 @@ export default function Input({ result, onChange: setResult, input, onInputChang
             {input.length > 0 && result && (
                 result.success ? (
                     <>
-                        <Text mt="0.5rem" d="inline-block" mr="0.5rem">👍</Text>
+                        <Text mt="0.5rem" display="inline-block" mr="0.5rem">👍</Text>
                     </>
                 ) : (
                     <Text as="pre" color="red.500">{result.match.message.split("\n").filter((_, i) => i > 1).join("\n").slice(6)}</Text>

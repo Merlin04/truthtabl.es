@@ -39,11 +39,6 @@ export function buildMultipleTruthTable(matches: MatchResult[], argument: boolea
                 ] : []) as TruthTableColumn[]
             )]
         ], [[], []]);
-    
-    /*return {
-        main: /*[tables[0].main, tables[1].main + tables[0].cols.length + 1] tables.reduce((acc, cur) => [[...acc[0], ]], [[], 0]),
-        cols: [...tables[0].cols, ["/", ...Array(tables[0].cols[0].length - 1).fill("")], ...tables[1].cols]
-    };*/
 
     return { main, cols };
 }
@@ -53,8 +48,9 @@ function getConstants(semanticsInst: ohm.Dict) {
     // First find all the constants
     const consts: string[] = [];
     const iterate = (node: Node) => {
-        if (node.ctorName === "Identifier") {
-            const value = (node.children[0] as TerminalNode)._value;
+        if (node.ctorName === "ident") {
+            const extract = (ns : NonterminalNode[]) : string => ns.map((n : NonterminalNode) => n.children ? extract(n.children) : n._value).join("");
+            const value = extract((node as unknown as NonterminalNode).children);
             if(!consts.includes(value)) consts.push(value);
         }
         else if(node.ctorName !== "_terminal") {
@@ -87,42 +83,37 @@ function buildRestOfTruthTable(semantics: SymbolicLogicSemantics, semanticsInst:
             constColumns[constant] = (Array.prototype.concat.call(constColumns[constant], seq) as TruthTableColumn);
         }
     });
-    const wrapper = (arg0: any) => arg0.eval();
-    const dyadicActionFactory = (fn: (a: boolean, b: boolean) => boolean, symbol: string) => function(this: NonterminalNode, arg0: NonterminalNode, _: OTerminalNode, arg2: NonterminalNode) {
+    const dyadicActionFactory = (fn: (a: boolean, b: boolean) => boolean) => function(this: NonterminalNode, arg0: NonterminalNode, op: OTerminalNode, arg2: NonterminalNode) {
         const e0 = arg0.eval();
         const e2 = arg2.eval();
         const result = (transpose([e0.cols[e0.main], e2.cols[e2.main]]).slice(1) as boolean[][]).map(([a, b]) => fn(a, b));
         
         return {
             main: e0.cols.length,
-            cols: [...e0.cols, [symbol, ...result], ...e2.cols]
+            cols: [...e0.cols, [op.sourceString, ...result], ...e2.cols]
         };
     }
     // Evaluate the thing
     semantics.addOperation<TruthTable>("eval", {
-        Exp: wrapper,
-        Dyadic: wrapper,
-        Monadic: wrapper,
+        Bicond_expr: dyadicActionFactory((a, b) => a === b),
+        Cond_expr: dyadicActionFactory((a, b) => !(a && !b) /* or !a || b */),
+        Disj_expr: dyadicActionFactory((a, b) => a || b),
+        Conj_expr: dyadicActionFactory((a, b) => a && b),
+        Neg_expr(op, arg) {
+            // If more monadic operators are added I should split this out into a factory, but for now it's fine
+            const e = arg.eval();
+            return {
+                main: 0,
+                cols: [[op.sourceString, ...e.cols[e.main].slice(1).map((a: boolean) => !a)], ...e.cols]
+            };
+        },
         Grouping(arg0, arg1, arg2) {
             const e = arg1.eval();
             e.cols[0][0] = arg0.sourceString + e.cols[0][0];
             e.cols[e.cols.length - 1][0] += arg2.sourceString;
             return e;
         },
-        OperatorParam: wrapper,
-        Conjunction: dyadicActionFactory((a, b) => a && b, "&"),
-        Disjunction: dyadicActionFactory((a, b) => a || b, "v"),
-        Conditional: dyadicActionFactory((a, b) => !(a && !b) /* or !a || b */, "⊃"),
-        Biconditional: dyadicActionFactory((a, b) => a === b, "≡"),
-        Negation(_, arg1) {
-            // If more monadic operators are added I should split this out into a factory, but for now it's fine
-            const e = arg1.eval();
-            return {
-                main: 0,
-                cols: [["~", ...e.cols[e.main].slice(1).map((a: boolean) => !a)], ...e.cols]
-            };
-        },
-        Identifier(arg0) {
+        ident(arg0) {
             return {
                 main: 0,
                 cols: [constColumns[arg0.sourceString].slice() as TruthTableColumn]

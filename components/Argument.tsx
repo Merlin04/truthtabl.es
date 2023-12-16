@@ -54,7 +54,7 @@ function ArgumentResults({ data }: { data: ohm.MatchResult[] }) {
  
     return (
         <>
-            <Flex d="vertical" mt="1rem">
+            <Flex display="vertical" mt="1rem">
                 <Indicator active={valid} label="Valid" />
                 <Indicator active={!valid} label="Invalid" />
             </Flex>

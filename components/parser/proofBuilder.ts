@@ -20,9 +20,9 @@ export function createSemantics<T>({ dyadic, monadic, identifier, grouping, sign
     signature?: string
 }) {
     const semantics = grammar.createSemantics();
-    const wrapper = function(this: ohm.NonterminalNode, arg0: any) { return arg0.eval(...Object.values(this.args)); };
+    // const passthrough = function(this: ohm.NonterminalNode, arg0: any) { return arg0.eval(...Object.values(this.args)); };
     semantics.addOperation<T>("eval" + (signature ?? ""), {
-        Exp: wrapper,
+        /*Exp: wrapper,
         Dyadic: wrapper,
         Monadic: wrapper,
         Grouping: grouping ?? (function(_, arg1, _2) { return arg1.eval(...Object.values(this.args)); }),
@@ -32,7 +32,15 @@ export function createSemantics<T>({ dyadic, monadic, identifier, grouping, sign
         Conditional: dyadic,
         Biconditional: dyadic,
         Negation: monadic,
-        Identifier: identifier
+        Identifier: identifier*/
+
+        Bicond_expr: dyadic,
+        Cond_expr: dyadic,
+        Disj_expr: dyadic,
+        Conj_expr: dyadic,
+        Neg_expr: monadic,
+        Grouping: grouping ?? (function(_, arg1, _2) { return arg1.eval(...Object.values(this.args)); }),
+        ident: identifier
     });
 
     return semantics;

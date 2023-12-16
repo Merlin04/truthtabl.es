@@ -13,16 +13,26 @@ import {
 
 export interface SymbolicLogicActionDict<T> extends ActionDict<T> {
   Exp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  Dyadic?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  Monadic?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  Grouping?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
-  OperatorParam?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  Conjunction?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
-  Disjunction?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
-  Conditional?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
-  Biconditional?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
-  Negation?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
-  Identifier?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  bicond_op?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  Bicond_expr?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  Bicond?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  cond_op?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  Cond_expr?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  Cond?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  disj_op?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  Disj_expr?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  Disj?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  conj_op?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  Conj_expr?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  Conj?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  neg_op?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  Neg_expr?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  Neg?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  gparen?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  gsquare?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  gcurly?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  Grouping?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
+  ident?: (this: NonterminalNode, arg0: NonterminalNode) => T;
 }
 
 export interface SymbolicLogicSemantics extends Semantics {

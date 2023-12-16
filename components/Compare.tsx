@@ -72,12 +72,12 @@ function CompareResults({ data }: { data: [ohm.MatchResult, ohm.MatchResult] }) 
 
     return (
         <>
-            <Flex d="vertical">
+            <Flex display="vertical">
                 <Indicator active={equivalent} label="Equivalent" />
                 <Indicator active={contradictory} label="Contradictory" />
                 <Indicator active={!equivalent && !contradictory} label="Neither" />
             </Flex>
-            <Flex d="vertical" mt="1rem">
+            <Flex display="vertical" mt="1rem">
                 <Indicator active={consistent} label="Consistent" />
                 <Indicator active={!consistent} label="Inconsistent" />
                 <Text color="gray.500">* If the statements are logically contrary then they are inconsistent, regardless of what this says</Text>

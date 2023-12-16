@@ -17,7 +17,7 @@ export default function TypeIndicator({ data }: { data: TruthTableResult }) {
     const contingency = !tautology && !contradiction;
     
     return (
-        <Flex d="vertical">
+        <Flex display="vertical">
             <Indicator active={tautology} label="Tautology (all true)" />
             <Indicator active={contradiction} label="Contradiction (all false)" />
             <Indicator active={contingency} label="Contingency (depends on inputs)" />

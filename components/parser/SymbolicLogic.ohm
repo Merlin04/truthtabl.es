@@ -1,4 +1,4 @@
-SymbolicLogic {
+/*SymbolicLogic {
 	Exp = Dyadic | Monadic | Identifier
 	Dyadic = Conjunction | Disjunction | Conditional | Biconditional
 	Monadic = Negation
@@ -12,4 +12,62 @@ SymbolicLogic {
 	Biconditional = OperatorParam ("==" | "=" | "≡") OperatorParam
 	Negation = ("~" | "!") OperatorParam
 	Identifier = "A".."Z"
+}*/
+
+SymbolicLogic {
+  Exp
+    = Bicond
+
+  bicond_op (an operator)
+    = ("==" | "=" | "≡")
+
+  Bicond
+    = Bicond bicond_op Cond -- expr
+    | Cond
+
+  cond_op (an operator)
+    = (">" | "" | "⊃")
+
+  Cond
+    = Disj cond_op Cond -- expr
+    | Disj
+
+  disj_op (an operator)
+    = ("v" | "\\/" | "||")
+
+  Disj
+    = Disj disj_op Conj -- expr
+    | Conj
+
+  conj_op (an operator)
+    = ("&&" | "&" | "/\\")
+
+  Conj
+    = Conj conj_op Neg -- expr
+    | Neg
+
+  neg_op (an operator)
+    = ("~" | "!")
+
+  Neg
+    = neg_op Neg -- expr
+    | Grouping
+    | ident
+
+  gparen (a grouping)
+    = "("
+
+  gsquare (a grouping)
+    = "["
+
+  gcurly (a grouping)
+    = "{"
+
+  Grouping
+    = gparen Exp ")"
+    | gsquare Exp "]"
+    | gcurly Exp "}"
+
+  ident (a letter)
+    = letter
 }

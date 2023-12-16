@@ -283,7 +283,7 @@ export default function ProofBuilder(props: {
                                 {props.data.slice(0, -1).map((premise, index) => (
                                     <BoxButton {...getStepProps(index)}>
                                         {`${index + 1}. `}
-                                        <Text fontFamily="monospace" d="inline-block" ml="0.5rem" fontSize="1rem">
+                                        <Text fontFamily="monospace" display="inline-block" ml="0.5rem" fontSize="1rem">
                                             <StatementTree statement={premise} index={index} />
                                         </Text>
                                     </BoxButton>
@@ -302,7 +302,7 @@ export default function ProofBuilder(props: {
                                             width: "100%"
                                         }}>
                                             {`${index + props.data.length}. `}
-                                            <Text flex="1" fontFamily="monospace" d="inline-block" ml="0.5rem" fontSize="1rem">
+                                            <Text flex="1" fontFamily="monospace" display="inline-block" ml="0.5rem" fontSize="1rem">
                                                 <StatementTree statement={step.statement} index={index + props.data.length - 1}/>
                                             </Text>
                                             <Text color="gray.500">{step.source.map(s => s + 1).join(", ")} {step.argType}</Text>

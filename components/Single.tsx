@@ -25,7 +25,7 @@ export default function Single() {
                 <TruthTable data={result.truthTable} />
             </Box>}
             <Text color="primary.400" pt="1rem">
-                Confused? Try <Link d="inline-block" color="blue.500" onClick={() => setInput(example)}><pre>{example}</pre></Link>
+                Confused? Try <Link display="inline-block" color="blue.500" onClick={() => setInput(example)}><code>{example}</code></Link>, or learn more below
             </Text>
         </>
     )

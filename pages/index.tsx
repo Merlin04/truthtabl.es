@@ -183,15 +183,29 @@ const float_img_sx = {
     padding: "0.5rem"
 };
 
+const meta_title = "Truth Table Generator with Conclusion";
+const meta_description = "Most powerful online logic truth table calculator. Easily construct truth tables with steps, generate conclusions, check tautologies, analyze arguments, and more!";
+
+const canonical_url = "https://www.truthtabl.es/";
+
 export default function App() {
     return (
         <>
             <Head>
-                {/* TODO */}
-                <title>Truth Table Generator with Conclusion - TruthTables</title>
-                <meta name="description" content="Most powerful online logic truth table calculator. Easily construct truth tables with steps, generate conclusions, check tautologies, analyze arguments, and more!" />
+                <title>{meta_title + " - TruthTables"}</title>
+                <meta name="description" content={meta_description} />
+                <meta name="application-name" content="TruthTables" />
+                <meta name="theme-color" content="#ffffff" />
+                <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+                <meta property="og:title" content={meta_title} />
+                <meta property="og:url" content={canonical_url} />
+                <meta property="og:type" content="website" />
+                <meta property="og:description" content={meta_description} />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={meta_title} />
+                <meta name="twitter:description" content={meta_description} />
                 <link rel="icon" href="/favicon.ico" />
-                
+                <link rel="canonical" href={canonical_url} />
             </Head>
             <Box pos="sticky" top="0" maxW="container.lg" mx="auto" zIndex="1300" mb="2rem">
                 <Navbar />

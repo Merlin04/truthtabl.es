@@ -1,6 +1,6 @@
 import React from "react";
 import { Flex, Box, Text } from "@chakra-ui/react";
-import { TruthTable as TruthTableResult } from "./parser/parser";
+import { TruthTable } from "./parser/parser";
 
 export const Indicator = (props: { active: boolean, label: string }) => (
     <Flex alignItems="center">
@@ -9,7 +9,7 @@ export const Indicator = (props: { active: boolean, label: string }) => (
     </Flex>
 );
 
-export default function TypeIndicator({ data }: { data: TruthTableResult }) {
+export default function TypeIndicator({ data }: { data: TruthTable }) {
     const mainCol = data.cols[data.main].slice(1) as boolean[];
 
     const tautology = mainCol.every(val => val);

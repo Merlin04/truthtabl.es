@@ -4,7 +4,7 @@ import grammar from "./SymbolicLogic.ohm-bundle";
 enum NodeType {
     Node,
     PlaceholderNode
-};
+}
 
 export type Node<CanAcceptPlaceholderNodes extends (true | false) = false> = {
     _t: NodeType.Node;
@@ -20,20 +20,7 @@ export function createSemantics<T>({ dyadic, monadic, identifier, grouping, sign
     signature?: string
 }) {
     const semantics = grammar.createSemantics();
-    // const passthrough = function(this: ohm.NonterminalNode, arg0: any) { return arg0.eval(...Object.values(this.args)); };
     semantics.addOperation<T>("eval" + (signature ?? ""), {
-        /*Exp: wrapper,
-        Dyadic: wrapper,
-        Monadic: wrapper,
-        Grouping: grouping ?? (function(_, arg1, _2) { return arg1.eval(...Object.values(this.args)); }),
-        OperatorParam: wrapper,
-        Conjunction: dyadic,
-        Disjunction: dyadic,
-        Conditional: dyadic,
-        Biconditional: dyadic,
-        Negation: monadic,
-        Identifier: identifier*/
-
         Bicond_expr: dyadic,
         Cond_expr: dyadic,
         Disj_expr: dyadic,
@@ -384,7 +371,7 @@ function areNodesEqual(a: Node, b: Node, compareFn: { (a: Node, b: Node): boolea
     const childrenEqual: { (): boolean } = () => a.children.every((v, i) => compareFn(v, b.children[i]));
 
     return a.token === b.token && a.children.length === b.children.length && childrenEqual();
-};
+}
 
 function patternMatchNode(pattern: Node, input: Node, vars: PMatchVars = {}): {
     vars: PMatchVars

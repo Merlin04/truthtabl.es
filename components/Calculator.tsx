@@ -1,4 +1,4 @@
-import { Heading, Container, Tabs, TabPanels, TabList, TabPanel, Tab, Box, BoxProps } from "@chakra-ui/react";
+import { Heading, Tabs, TabPanels, TabList, TabPanel, Tab, Box, BoxProps } from "@chakra-ui/react";
 import Single from "./Single";
 import Compare from './Compare';
 import Argument from "./Argument";

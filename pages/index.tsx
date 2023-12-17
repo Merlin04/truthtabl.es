@@ -217,7 +217,7 @@ export default function App() {
             }}>
                 <Heading as="h2" id="operators">Logical operator quick reference</Heading>
                 <Text>The first step in making a truth table is to translate your argument into the language of symbolic logic. Here's a logic translation cheat sheet to help out.</Text>
-                <ScrollShadow>
+                <ScrollShadow maxW="100%">
                     <Table>
                         <Thead fontWeight="500">
                             <Tr>

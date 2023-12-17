@@ -23,24 +23,38 @@ export type TruthTable<MultipleMain extends boolean = false> = {
     cols: TruthTableColumn[]
 }
 
+export type TruthTableData<MultipleMain extends boolean = false> = {
+    simple: TruthTable<MultipleMain>,
+    detailed: TruthTable<MultipleMain>,
+    consts?: string[],
+    source?: string
+}
+
 // https://stackoverflow.com/a/17428705
 export const transpose = <T>(array: T[][]) => array[0].map((_, colIndex) => array.map(row => row[colIndex]));
 
-export function buildMultipleTruthTable(matches: MatchResult[], argument: boolean): TruthTable<true> {
+export function buildMultipleTruthTable(matches: MatchResult[], argument: boolean): TruthTableData<true> {
     const semantics = matches.map(m => ((s) => [s, s(m)])(grammar.createSemantics())) as [SymbolicLogicSemantics, ohm.Dict][];
     const consts = [...new Set(semantics.map((s) => getConstants(s[1])).flat())];
-    const tables = semantics.map(([semantics, s]) => buildRestOfTruthTable(semantics, s, consts));
-    const [ main, cols ] = tables.reduce<[number[], TruthTableColumn[]]>((acc, cur, index) => [
-            [...acc[0], acc[1].length + cur.main],
-            [...acc[1], ...cur.cols, ...(
+    const tables = semantics.map(([s, sInst]) => buildTruthTable(s, sInst, consts)); // unfortunately we have to call this again, since we're giving it a different consts parameter
+
+    const joinTables = (tables: TruthTable[]) => {
+        const [h, ...t] = tables;
+        return t.reduce<TruthTable<true>>((acc, cur, index) => ({
+            main: [...acc.main, acc.cols.length + cur.main + 1],
+            cols: [...acc.cols, ...(
                 (index !== tables.length - 1 ? [
                     [((index === tables.length - 2 && argument) ? "//" : "/"), ...Array(tables[0].cols[0].length - 1).fill("")]
-                // Not sure why this is necessary but it is
+                    // Not sure why this is necessary but it is
                 ] : []) as TruthTableColumn[]
-            )]
-        ], [[], []]);
+            ), ...cur.cols]
+        }), { main: [h.main], cols: h.cols });
+    };
 
-    return { main, cols };
+    return {
+        simple: joinTables(tables.map(t => t.simple)),
+        detailed: joinTables(tables.map(t => t.detailed))
+    };
 }
 
 function getConstants(semanticsInst: ohm.Dict) {
@@ -61,7 +75,7 @@ function getConstants(semanticsInst: ohm.Dict) {
     return consts;
 }
 
-function buildRestOfTruthTable(semantics: SymbolicLogicSemantics, semanticsInst: ohm.Dict, consts: string[]): TruthTable {
+function buildTruthTable(semantics: SymbolicLogicSemantics, semanticsInst: ohm.Dict, consts: string[]): TruthTableData {
     // Generate constant truth table columns
     const constColumns: {
         [key: string]: TruthTableColumn
@@ -94,7 +108,12 @@ function buildRestOfTruthTable(semantics: SymbolicLogicSemantics, semanticsInst:
         };
     }
     // Evaluate the thing
+    let source: string | undefined; // hack
     semantics.addOperation<TruthTable>("eval", {
+        Exp(e) {
+            if(!source) source = e.sourceString;
+            return e.eval();
+        },
         Bicond_expr: dyadicActionFactory((a, b) => a === b),
         Cond_expr: dyadicActionFactory((a, b) => !(a && !b) /* or !a || b */),
         Disj_expr: dyadicActionFactory((a, b) => a || b),
@@ -121,21 +140,26 @@ function buildRestOfTruthTable(semantics: SymbolicLogicSemantics, semanticsInst:
         }
     });
 
-    return semanticsInst.eval();
+    const detailed: TruthTable = semanticsInst.eval();
+    // build
+    const constColumnValues = Object.values(constColumns);
+    const [_, ...rt] = detailed.cols[detailed.main]
+    const simple = {
+        main: constColumnValues.length,
+        cols: [...constColumnValues, [source!, ...rt] as TruthTableColumn]
+    };
+
+    return { simple, detailed, consts };
 }
 
-function buildTruthTable(match: MatchResult) {
-    const semantics = grammar.createSemantics();
-    const semanticsInst = semantics(match);
-    return buildRestOfTruthTable(semantics, semanticsInst, getConstants(semanticsInst));
-}
-
-export default function parse(input: string): ({
+type ParseResultSuccess = {
     success: true,
-    truthTable: TruthTable,
-    match: MatchResult
-} | {
+    match: MatchResult,
+    table: TruthTableData
+}
+export type ParseResult = ParseResultSuccess | {
     success: false,
+    // type from observations of the actual returned object
     match: {
         _rightmostFailurePosition: number,
         _rightmostFailures: unknown[],
@@ -145,20 +169,17 @@ export default function parse(input: string): ({
         shortMessage: string,
         startExpr: unknown
     }
-}) {
+}
+export function parse(input: string): ParseResult {
     const match = grammar.match(input);
-    if (match.succeeded()) {
-        // Now let's build the truth table
-        return {
-            success: true,
-            truthTable: buildTruthTable(match),
-            match
-        };
-    } else {
-        return {
-            success: false,
-            // Function type from observations of the actual returned object
-            match: match as any
-        }
-    }
+    const success = match.succeeded();
+    if (!success) return { success, match } as unknown as ParseResult;
+    const semantics = grammar.createSemantics();
+    const semanticsInst = semantics(match);
+    const consts = getConstants(semanticsInst);
+    return {
+        success,
+        match,
+        table: buildTruthTable(semantics, semanticsInst, consts)
+    };
 }

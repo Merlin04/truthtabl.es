@@ -1,5 +1,5 @@
 import React from "react";
-import parse from "./parser/parser";
+import { parse, ParseResult } from "./parser/parser";
 import { Input as ChakraInput, Text, Button } from "@chakra-ui/react";
 
 function prettify(input: string) {
@@ -7,15 +7,12 @@ function prettify(input: string) {
 }
 
 export default function Input({ result, onChange: setResult, input, onInputChange: setInput }: {
-    result: ReturnType<typeof parse> | undefined,
-    onChange(result: ReturnType<typeof parse> | undefined): void,
+    result: ParseResult | undefined,
+    onChange(result: ParseResult | undefined): void,
     input: string,
     onInputChange(input: string): void
 }) {
-    React.useEffect(() => {
-        setResult(undefined);
-        setResult(parse(input));
-    }, [input]);
+    React.useEffect(() => setResult(input.trim().length === 0 ? undefined : parse(input)), [input]);
     
     return (
         <>

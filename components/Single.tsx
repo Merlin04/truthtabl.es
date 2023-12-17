@@ -1,5 +1,5 @@
 import * as React from 'react'
-import parse from "./parser/parser";
+import { ParseResult } from "./parser/parser";
 import { Text, Link, Box } from "@chakra-ui/react";
 import TruthTable from "./TruthTable";
 import "ts-replace-all";
@@ -10,7 +10,7 @@ const example = "(A & B) > C";
 
 export default function Single() {
     const [input, setInput] = React.useState("");
-    const [result, setResult] = React.useState<ReturnType<typeof parse>>();
+    const [result, setResult] = React.useState<ParseResult>();
 
     return (
         <>
@@ -21,8 +21,8 @@ export default function Single() {
                     mt: "1rem"
                 }
             }}>
-                <TypeIndicator data={result.truthTable} />
-                <TruthTable data={result.truthTable} />
+                <TypeIndicator data={result.table.detailed} />
+                <TruthTable data={result.table} />
             </Box>}
             <Text color="primary.400" pt="1rem">
                 Confused? Try <Link display="inline-block" color="blue.500" onClick={() => setInput(example)}><code>{example}</code></Link>, or learn more below
